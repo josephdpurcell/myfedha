@@ -68,7 +68,7 @@
 
 <div id="container">
 
-    <h1>Dashboard</h1>
+    <h1>Users</h1>
 
     <nav>
         <ul>

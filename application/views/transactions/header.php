@@ -74,12 +74,9 @@
         <ul>
             <li><a href="/accounts">Accounts</a></li>
             <li><a href="/transactions">Transactions</a></li>
-            <?php if ($this->session->userdata('logged_in')) { ?>
-            <li><a href="/users/logout">Logout</a></li>
-            <?php } else { ?>
             <li><a href="/users/login">Login</a></li>
             <li><a href="/users/register">Register</a></li>
-            <?php } ?>
         </ul>
     </nav>
+
 
