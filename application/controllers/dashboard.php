@@ -2,6 +2,12 @@
 
 class Dashboard extends CI_Controller {
 
+    public function __construct ()
+    {
+        parent::__construct();
+        $this->user->restrict();
+    }
+
 	public function index()
 	{
 		$this->load->view('t/header');

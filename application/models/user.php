@@ -126,7 +126,7 @@ class User extends CI_Model {
         $username = '';
         if ($this->input->post('username')) {
             $username = $this->input->post('username');
-        } else if ($session_user['username']) {
+        } else if (isset($session_user['username']) && $session_user['username']) {
             $username = $session_user['username'];
         }
 
@@ -134,7 +134,7 @@ class User extends CI_Model {
         $email = '';
         if ($this->input->post('email')) {
             $email = $this->input->post('email');
-        } else if ($session_user['email']) {
+        } else if (isset($session_user['email']) && $session_user['email']) {
             $email = $session_user['email'];
         }
 
@@ -273,6 +273,13 @@ class User extends CI_Model {
 
         $password = sha1($this->config->item('salt').$this->input->post('password'));
         $this->db->where('username',$this->input->post('username'))->update('users',array('password'=>$password));
+    }
+
+    public function restrict ()
+    {
+        if (!$this->session->userdata('logged_in')) {
+            header("Location: /users/login");
+        }
     }
 
 }
