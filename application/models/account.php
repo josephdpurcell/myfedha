@@ -3,7 +3,7 @@
 /**
  * Dependencies: user, account
  */
-class Account extends CI_Model {
+class Account extends Model {
 
     public function getId ()
     {
@@ -22,8 +22,7 @@ class Account extends CI_Model {
             throw new Exception("Could not find the account.");
         }
         $this->_data = $account;
-        $this->_account_id = $account['account_id'];
-        $this->load();
+        $this->_load();
     }
 
     public function get_account ($account_id=null)
