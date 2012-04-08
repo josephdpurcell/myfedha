@@ -1,5 +1,5 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
-include('model.php');
+require_once('model.php');
 
 class User extends Model {
 

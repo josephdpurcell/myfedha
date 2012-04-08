@@ -55,7 +55,7 @@ class Model extends CI_Model {
             return $this->_data[$name];
         } else if (method_exists($this,$fn)) {
             return $this->$fn();
-        } else if ($CI->$name) {
+        } else if (property_exists($CI,$name) && $CI->$name) {
             return $CI->$name;
         }
         return null;

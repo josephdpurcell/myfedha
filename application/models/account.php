@@ -1,4 +1,5 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+require_once('model.php');
 
 /**
  * Dependencies: user, account
@@ -7,7 +8,7 @@ class Account extends Model {
 
     public function getId ()
     {
-        return isset($this->_data['account_id']) ? $this->_data['account_id'] : null;
+        return isset($this->_data->account_id) ? $this->_data->account_id : null;
     }
 
     public function load_account ($account_name=null)
@@ -32,13 +33,23 @@ class Account extends Model {
         } else if (is_string($account_id)) {
             return $this->db->where(array('slug'=>$account_id,'user_id'=>$this->user->id))->get('accounts')->row();
         } else {
-            throw new Exception("Invalid account ID.");
+            return $this->db->where(array('default'=>true,'user_id'=>$this->user->id))->get('accounts')->row();
         }
     }
 
     public function get_default_account ()
     {
         return $this->db->where(array('default'=>true,'user_id'=>$this->user->id))->get('accounts')->row();
+    }
+
+    public function get_transactions ($account_id=null)
+    {
+        if (!is_null($account_id)) {
+            $account = $this->get_account($account_id);
+        } else {
+            $account = $this;
+        }
+        return $this->db->where(array('to_account_id'=>$account->account_id,'user_id'=>$this->user->id))->order_by('date','desc')->get('transactions')->result();
     }
 
     public function insert ()
@@ -51,7 +62,7 @@ class Account extends Model {
         $account['name'] = $this->input->post('name');
         $account['description'] = $this->input->post('description');
         $account['amount'] = $this->input->post('amount');
-        $account['default'] = $this->input->post('default');
+        $account['default'] = (bool) $this->input->post('default');
         $account['created'] = date("Y-m-d H:i:s");
 
         // check if account exists
