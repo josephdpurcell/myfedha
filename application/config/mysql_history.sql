@@ -6,7 +6,7 @@
 
 -- --------------------------------------------------------
 -- Create Care Tables
--- April 2, 2012
+-- April 7, 2012
 
 CREATE TABLE `users` (
   `user_id` int(255) unsigned NOT NULL AUTO_INCREMENT,
@@ -27,28 +27,30 @@ CREATE TABLE `users` (
 CREATE TABLE `accounts` (
   `account_id` int(255) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(255) unsigned NOT NULL,
-  `amount` double NOT NULL,
+  `slug` varchar(255) NOT NULL,
   `name` varchar(255) NOT NULL,
   `description` varchar(255) DEFAULT NULL,
+  `amount` double NOT NULL,
+  `parent_id` int(255) unsigned DEFAULT NULL,
   `created` datetime NOT NULL,
   `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`account_id`),
-  UNIQUE (`user_id`,`name`)
+  UNIQUE KEY `name` (`user_id`,`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
- CREATE TABLE `transactions` (
+CREATE TABLE `transactions` (
   `transaction_id` int(255) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(255) unsigned NOT NULL,
-  `account_id` int(255) unsigned NOT NULL,
   `amount` double NOT NULL,
   `description` varchar(255) NOT NULL,
+  `to_account_id` int(255) unsigned NOT NULL,
+  `from_account_id` int(255) unsigned NOT NULL,
   `tags` varchar(255) NOT NULL,
-  `status` varchar(255) DEFAULT 'pending' NOT NULL,
+  `status` varchar(255) NOT NULL DEFAULT 'pending',
   `date` datetime NOT NULL,
   `created` datetime NOT NULL,
   `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`transaction_id`),
-  UNIQUE (`user_id`,`amount`,`description`,`date`)
+  UNIQUE KEY `amount` (`user_id`,`amount`,`description`,`to_account_id`,`date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 

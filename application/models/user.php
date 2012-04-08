@@ -1,15 +1,30 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+include('model.php');
 
-class User extends CI_Model {
+class User extends Model {
 
-    function __construct()
+    private $_user_id;
+
+    public function __construct ()
     {
         parent::__construct();
         $this->load->library('email');
         $this->load->helper('string');
+        $this->_data = $this->session->userdata('user');
+        $this->_load();
+    }
+
+    public function getId ()
+    {
+        return $this->_data['user_id'];
+    }
+
+    public function getAccounts ()
+    {
+        return $this->db->where(array('user_id'=>$this->user_id))->get('accounts')->result();
     }
     
-    function get_user ($user_id=null)
+    public function get_user ($user_id=null)
     {
         if (ctype_digit($user_id)) {
             return $this->db->where(array('user_id'=>$user_id))->get('users')->row_array();

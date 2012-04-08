@@ -70,6 +70,17 @@
 
     <h1>Users</h1>
 
+    <?php if ($this->session->flashdata('error')) { ?>
+    <div id="error">
+        <?php echo $this->session->flashdata('error'); ?>
+    </div>
+    <?php } ?>
+    <?php if ($this->session->flashdata('notice')) { ?>
+    <div id="notice">
+        <?php echo $this->session->flashdata('notice'); ?>
+    </div>
+    <?php } ?>
+
     <nav>
         <ul>
             <li><a href="/accounts">Accounts</a></li>
