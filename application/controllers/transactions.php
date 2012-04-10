@@ -54,7 +54,7 @@ class Transactions extends CI_Controller {
         if ($this->input->post('amount')) {
             try {
                 $this->transaction->insert();
-                $this->session->set_flashdata('notice','Transaction of $'.$this->input->post('amount').' was added.');
+                $this->session->set_flashdata('success','Transaction of $'.$this->input->post('amount').' was added.');
                 header('Location: /transactions/add/'.$this->account->slug);
             } catch (Exception $e) {
                 $this->session->set_flashdata('error',$e->getMessage());
@@ -79,7 +79,7 @@ class Transactions extends CI_Controller {
         if ($this->input->post('amount')) {
             try {
                 $this->transaction->update();
-                $this->session->set_flashdata('notice','Transaction of $'.$this->input->post('amount').' was updated.');
+                $this->session->set_flashdata('success','Transaction of $'.$this->input->post('amount').' was updated.');
                 header('Location: /transactions/view/'.$this->account->slug);
             } catch (Exception $e) {
                 $this->session->set_flashdata('error',$e->getMessage());
@@ -101,7 +101,7 @@ class Transactions extends CI_Controller {
     public function delete ($account_id,$transaction_id)
     {
         if ($this->transaction->delete()) {
-            $this->session->set_flashdata('notice','Transaction was deleted.');
+            $this->session->set_flashdata('success','Transaction was deleted.');
         } else {
             $this->session->set_flashdata('error','Transaction was NOT deleted.');
         }

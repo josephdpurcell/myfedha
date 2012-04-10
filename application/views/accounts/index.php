@@ -5,9 +5,9 @@
             <li>$<?php echo $a->amount; ?> - <?php echo $a->name; ?> (<a href="/accounts/edit/<?php echo $a->account_id; ?>">edit</a>)</li>
         <?php } ?>
         </ul>
-        <h2>Actions</h2>
-        <ul>
-            <li><a href="/accounts/add">Add</a></li>
-        </ul>
+
+        <form method="post" action="/accounts/add">
+        <input name="add" type="submit" class="submit" value="Add">
+        </form>
 	</div>
 

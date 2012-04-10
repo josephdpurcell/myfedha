@@ -26,7 +26,7 @@ class Accounts extends CI_Controller {
         if ($this->input->post('name')) {
             try {
                 $this->account->insert();
-                $this->session->set_flashdata('notice','Account was created');
+                $this->session->set_flashdata('success','Account was created');
                 header('Location: /accounts');
             } catch (Exception $e) {
                 $this->session->set_flashdata('error',$e->getMessage());
@@ -50,7 +50,7 @@ class Accounts extends CI_Controller {
         if ($this->input->post('name')) {
             try {
                 $this->account->update();
-                $this->session->set_flashdata('notice','Account was updated');
+                $this->session->set_flashdata('success','Account was updated');
                 header('Location: /accounts');
             } catch (Exception $e) {
                 $this->session->set_flashdata('error',$e->getMessage());

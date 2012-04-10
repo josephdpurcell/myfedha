@@ -2,95 +2,127 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>Welcome to CodeIgniter</title>
+	<title>MyFedha - Double entry done right.</title>
 
-	<style type="text/css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+    <script src="/js/jquery.validate.js"></script>
+    <script src="/js/login.js"></script>
+    <script src="/js/jquery.tipsy.js"></script>
+    <script src="/js/scripts.js"></script>
+    <script src="/js/facebox.js"></script>
+    <script type="text/javascript" src="js/jquery.flot.pack.js"></script>
+    <!--[if IE]>
+    <script language="javascript" type="text/javascript" src="js/excanvas.pack.js"></script>
+    <![endif]-->
 
-	::selection{ background-color: #E13300; color: white; }
-	::moz-selection{ background-color: #E13300; color: white; }
-	::webkit-selection{ background-color: #E13300; color: white; }
+    <!--[if IE 6]>
+    <script src="js/pngfix.js"></script>
+    <script>
+        DD_belatedPNG.fix('.png_bg');
+    </script>        
+    <![endif]-->
 
-	body {
-		background-color: #fff;
-		margin: 40px;
-		font: 13px/20px normal Helvetica, Arial, sans-serif;
-		color: #4F5155;
-	}
+    <script src="/js/graphs.js"></script>
 
-	a {
-		color: #003399;
-		background-color: transparent;
-		font-weight: normal;
-	}
+    <link href="/css/facebox.css" rel="stylesheet" type="text/css" />
+    <link href="/css/theme-style.css" rel="stylesheet" type="text/css">
+    <link href="/css/myfedha-style.css" rel="stylesheet" type="text/css">
 
-	h1 {
-		color: #444;
-		background-color: transparent;
-		border-bottom: 1px solid #D0D0D0;
-		font-size: 19px;
-		font-weight: normal;
-		margin: 0 0 14px 0;
-		padding: 14px 15px 10px 15px;
-	}
-
-	code {
-		font-family: Consolas, Monaco, Courier New, Courier, monospace;
-		font-size: 12px;
-		background-color: #f9f9f9;
-		border: 1px solid #D0D0D0;
-		color: #002166;
-		display: block;
-		margin: 14px 0 14px 0;
-		padding: 12px 10px 12px 10px;
-	}
-
-	#body{
-		margin: 0 15px 0 15px;
-	}
-	
-	p.footer{
-		text-align: right;
-		font-size: 11px;
-		border-top: 1px solid #D0D0D0;
-		line-height: 32px;
-		padding: 0 10px 0 10px;
-		margin: 20px 0 0 0;
-	}
-	
-	#container{
-		margin: 10px;
-		border: 1px solid #D0D0D0;
-		-webkit-box-shadow: 0 0 8px #D0D0D0;
-	}
-	</style>
 </head>
 <body>
 
-<div id="container">
+<div id="header" class="png_bg">
 
-    <h1>Users</h1>
+    <div id="head_wrap" class="container_12">
+    
+        <!-- start of logo - you could replace this with an image of your logo -->
+        <div id="logo" class="grid_4">
+          <h1>My<span>Fedha</span></h1>
+        </div>
+        <!-- end logo -->
+        
+        <!-- start control panel -->
+    	<div id="controlpanel" class="grid_8">
+        
+            <ul>
+            
+                <?php if ($this->session->userdata('logged_in')) { ?>
+
+    			<li><p>Signed in as <strong><?php echo $this->user->name; ?></strong></p></li>
+                <li><a href="/users/change_password" class="first">Settings</a></li>
+                <li><a href="/users/logout" class="last">Sign Out</a></li>
+
+                <?php } else { ?>
+
+                <li><a href="/users/login">Login</a></li>
+                <li><a href="/users/register">Register</a></li>
+
+                <?php } ?>
+                
+            </ul>
+            
+        </div>
+        <!-- end control panel -->
+    
+        <!-- start navigation -->
+        <nav id="navigation" class="grid_12">
+            <ul>
+                <li><a href="/dashboard" class="<?php echo ($this->uri->segment(1)=='dashboard')?'active':''; ?>">Dashboard</a></li>
+                <li><a href="/accounts" class="<?php echo ($this->uri->segment(1)=='accounts')?'active':''; ?>">Accounts</a></li>
+                <li><a href="/transactions" class="<?php echo ($this->uri->segment(1)=='transactions')?'active':''; ?>">Transactions</a></li>
+            </ul>
+        </nav>
+        <!-- end navigation -->
+     
+    </div><!-- end headwarp  -->
+</div><!-- end header -->
+
+<!-- EVERYTING BELOW IS THE MAIN CONTENT -->
+
+<div id="main_content_wrap" class="container_12">
+
+    <?php if ($this->session->flashdata('notice')) { ?>
+    <div class="notification information canhide">
+        <p><strong>INFORMATION: </strong>
+        <?php echo $this->session->flashdata('notice'); ?>
+        </p>
+    </div>   
+    <?php } ?>
+
+    <?php if ($this->session->flashdata('warning')) { ?>
+    <div class="notification lightbulb canhide">
+        <p><strong>NOTIFICATION: </strong>
+        <?php echo $this->session->flashdata('warning'); ?>
+        </p>
+        
+    </div>
+    <?php } ?>
+
+    <?php if ($this->session->flashdata('warning')) { ?>
+    <div class="notification warning canhide">
+        <p><strong>WARNING: </strong>
+        <?php echo $this->session->flashdata('warning'); ?>
+        </p>
+    </div> 
+    <?php } ?>
+
+    <?php if ($this->session->flashdata('success')) { ?>
+    <div class="notification success canhide">
+        <p><strong>SUCCESS: </strong>
+        <?php echo $this->session->flashdata('success'); ?>
+        </p>
+    </div>  
+    <?php } ?>
 
     <?php if ($this->session->flashdata('error')) { ?>
-    <div id="error">
+    <div class="notification failure canhide">
+        <p><strong>FAILURE: </strong>
         <?php echo $this->session->flashdata('error'); ?>
-    </div>
-    <?php } ?>
-    <?php if ($this->session->flashdata('notice')) { ?>
-    <div id="notice">
-        <?php echo $this->session->flashdata('notice'); ?>
+        </p>
     </div>
     <?php } ?>
 
-    <nav>
-        <ul>
-            <li><a href="/accounts">Accounts</a></li>
-            <li><a href="/transactions">Transactions</a></li>
-            <?php if ($this->session->userdata('logged_in')) { ?>
-            <li><a href="/users/logout">Logout</a></li>
-            <?php } else { ?>
-            <li><a href="/users/login">Login</a></li>
-            <li><a href="/users/register">Register</a></li>
-            <?php } ?>
-        </ul>
-    </nav>
+            
+            
+            
 

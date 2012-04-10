@@ -9,13 +9,15 @@
 <form action="" method="post" charset="utf8">
     <p>
         <label for="password">Password</label>
-        <input type="password" value="<?php echo $this->input->post('password'); ?>" name="password" id="password">
+        <br>
+        <input type="password" value="<?php echo $this->input->post('password'); ?>" name="password" id="password" class="text large required">
     </p>
     <p>
         <label for="password_again">Password Again</label>
-        <input type="password" value="<?php echo $this->input->post('password_again'); ?>" name="password_again" id="password_again">
+        <br>
+        <input type="password" value="<?php echo $this->input->post('password_again'); ?>" name="password_again" id="password_again" class="text large required">
     </p>
     <p>
-        <input type="submit" value="Change Password" id="change-password">
+        <input type="submit" value="Change Password" id="change-password" class="submit">
     </p>
 </form>

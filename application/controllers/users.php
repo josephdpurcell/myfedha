@@ -17,7 +17,9 @@ class Users extends CI_Controller {
 
     public function login ()
     {
+        $header = array();
         $body = array();
+        $error = null;
 
         // check if already logged in
         if ($this->session->userdata('logged_in')) {
@@ -39,16 +41,17 @@ class Users extends CI_Controller {
                     header("Location: /dashboard");
                     exit;
                 } else {
-                    $body['error'] = "Username or password are incorrect.";
+                    $error = 'Username or password are incorrect.';
                 }
             } catch (Exception $e) {
-                $body['error'] = $e->getMessage();
+                $error = $e->getMessage();
             }
         }
 
-		$this->load->view('t/header');
+        $header['error'] = $error;
+		$this->load->view('t/header-login',$header);
 		$this->load->view('users/login',$body);
-		$this->load->view('t/footer');
+		$this->load->view('t/footer-login');
     }
 
     public function logout ()
@@ -61,7 +64,9 @@ class Users extends CI_Controller {
 
     public function register ()
     {
+        $header = array();
         $body = array();
+        $error = null;
 
         // check if already logged in
         if ($this->session->userdata('user')) {
@@ -77,17 +82,20 @@ class Users extends CI_Controller {
                 header("Location: /users/confirm_instructions");
                 exit;
             } catch (Exception $e) {
-                $body['error'] = $e->getMessage();
+                $error = $e->getMessage();
             }
         }
 
-		$this->load->view('t/header');
+        $header['error'] = $error;
+
+		$this->load->view('t/header-splash',$header);
 		$this->load->view('users/register',$body);
 		$this->load->view('t/footer');
     }
 
     public function confirm ()
     {
+        $header = array();
         $body = array();
 
         // process form
@@ -97,11 +105,13 @@ class Users extends CI_Controller {
                 header("Location: /dashboard");
                 exit;
             } catch (Exception $e) {
-                $body['error'] = $e->getMessage();
+                $error = $e->getMessage();
             }
         }
 
-		$this->load->view('t/header');
+        $header['error'] = $error;
+
+		$this->load->view('t/header',$header);
 		$this->load->view('users/confirm',$body);
 		$this->load->view('t/footer');
     }
@@ -111,16 +121,19 @@ class Users extends CI_Controller {
      */
     public function confirm_resend ()
     {
+        $header = array();
         $body = array();
+        $error = null;
 
         // resend confirmation
         try {
             $this->user->confirm_resend();
         } catch (Exception $e) {
-            $body['error'] = $e->getMessage();
+            $error = $e->getMessage();
         }
 
-		$this->load->view('t/header');
+        $header['error'] = $error;
+		$this->load->view('t/header',$header);
 		$this->load->view('users/confirm_resend',$body);
 		$this->load->view('t/footer');
     }
@@ -141,7 +154,9 @@ class Users extends CI_Controller {
 
     public function reset_password ()
     {
+        $header = array();
         $body = array();
+        $error = null;
         $reset_sent = false;
 
         // process form
@@ -152,21 +167,20 @@ class Users extends CI_Controller {
                 header("Location: /users/change_password");
                 exit;
             } catch (Exception $e) {
-                $body['error'] = $e->getMessage();
-                print_r($body);
+                $error = $e->getMessage();
             }
-            die('b');
         } else if ($this->input->post('username')) {
             // send reset email
             try {
                 $this->user->reset_password();
                 $reset_sent = true;
             } catch (Exception $e) {
-                $body['error'] = $e->getMessage();
+                $error = $e->getMessage();
             }
         }
 
-		$this->load->view('t/header');
+        $header['error'] = $error;
+		$this->load->view('t/header',$header);
         if ($reset_sent) {
             $this->load->view('users/reset_password_sent');
         } else {
@@ -177,20 +191,24 @@ class Users extends CI_Controller {
 
     public function change_password ()
     {
+        $header = array();
         $body = array();
+        $error = null;
 
         // process form
         if ($this->input->post('password') && $this->input->post('password_again')) {
             try {
                 $this->user->change_password();
+                $this->session->set_flashdata('success','Password was changed.');
                 header("Location: /dashboard");
                 exit;
             } catch (Exception $e) {
-                $body['error'] = $e->getMessage();
+                $error = $e->getMessage();
             }
         }
 
-		$this->load->view('t/header');
+        $header['error'] = $error;
+		$this->load->view('t/header',$header);
 		$this->load->view('users/change_password',$body);
 		$this->load->view('t/footer');
     }

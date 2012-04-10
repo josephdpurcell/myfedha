@@ -1,0 +1,38 @@
+#form-login .error {
+	padding: 7px;
+	margin: 3px;
+	background-color: #FCC;
+	border: 1px solid #F00;
+	font-family: arial;
+	font-size: 10px;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	color: #000;
+	float: left;
+	width: 98%;
+	-moz-border-radius:5px;
+	-webkit-border-radius: 5px;
+}
+
+.page {
+    width: 720px;
+    margin: 0 auto;
+    font-size: 120%;
+    line-height: 1.5em;
+}
+
+.page p {
+    margin-top: 1.5em;
+    margin-bottom: 1.5em;
+}
+
+.page ul {
+    margin-left: 2em;
+    list-style: disc;
+}
+
+.login-footer {
+    width: 100%;
+    margin: 0 auto;
+}

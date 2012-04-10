@@ -16,7 +16,7 @@ class User extends Model {
 
     public function getId ()
     {
-        return $this->_data['user_id'];
+        return isset($this->_data['user_id']) ? $this->_data['user_id'] : null;
     }
 
     public function getAccounts ()
@@ -290,10 +290,14 @@ class User extends Model {
         $this->db->where('username',$this->input->post('username'))->update('users',array('password'=>$password));
     }
 
-    public function restrict ()
+    public function restrict ($redirect_url=false)
     {
         if (!$this->session->userdata('logged_in')) {
-            header("Location: /users/login");
+            if ($redirect_url) {
+                header("Location: {$redirect_url}");
+            } else {
+                header("Location: /users/login");
+            }
         }
     }
 

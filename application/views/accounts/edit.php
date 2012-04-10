@@ -4,22 +4,25 @@
         <form action="" method="post" charset="utf8">
             <p>
                 <label for="name">Account Name</label>
-                <input type="text" value="<?php echo $account->name; ?>" name="name" id="name">
+                <br>
+                <input type="text" value="<?php echo $account->name; ?>" name="name" id="name" class="text large required">
             </p>
             <p>
                 <label for="description">Description</label>
-                <input type="text" value="<?php echo $account->description; ?>" name="description" id="description">
+                <br>
+                <input type="text" value="<?php echo $account->description; ?>" name="description" id="description" class="text large required">
             </p>
             <p>
                 <label for="amount">Amount</label>
-                <input type="amount" value="<?php echo $account->amount; ?>" name="amount" id="amount">
+                <br>
+                <input type="amount" value="<?php echo $account->amount; ?>" name="amount" id="amount" class="text large required">
             </p>
             <p>
                 <label for="default">Default</label>
                 <?php echo form_checkbox('default', 'default', (bool) $account->default); ?>
             </p>
             <p>
-                <input type="submit" value="Save" id="save">
+                <input type="submit" value="Save" id="save" class="submit">
             </p>
         </form>
 
