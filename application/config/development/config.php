@@ -15,7 +15,7 @@ ini_set('display_errors',1);
 | path to your installation.
 |
 */
-$config['base_url']	= 'http://myfedha.com';
+$config['base_url']	= 'http://dev.myfedha.com';
 
 /*
 |--------------------------------------------------------------------------
@@ -225,7 +225,7 @@ $config['cache_path'] = '';
 | MUST set an encryption key.  See the user guide for info.
 |
 */
-$config['encryption_key'] = 'VonyuthkigAbbetByonnicTaz.Evub5KnaquifpecksIckEbabsUlrirdIrUckRa';
+$config['encryption_key'] = 'fephdijdev^idlontalrysedsodAukFoajoddIpsayFruanCieghibryaHobMip5';
 
 /*
 |--------------------------------------------------------------------------
@@ -374,13 +374,13 @@ function __autoload ($class) {
     global $config;
     // ignore autoloading CodeIgniter classes
     $prefix = substr($class,0,2);
-    if ($prefix!='CI' && $prefix!=$config['sublcass_prefix']) {
+    if ($prefix!='CI' && $prefix!=$config['subclass_prefix']) {
         include(str_replace('_', DIRECTORY_SEPARATOR, strtolower($class)) . '.php');
     }
 }
 
 // set the root of the application directory
-define('APP_ROOT', dirname(dirname(dirname(__FILE__))));
+define('APP_ROOT', dirname(dirname(dirname(dirname(__FILE__)))));
 
 // put most likely paths first
 set_include_path('.'
