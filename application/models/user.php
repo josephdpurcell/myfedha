@@ -14,6 +14,11 @@ class User extends Model {
         $this->_load();
     }
 
+    public function getLogged_In ()
+    {
+        return $this->session->userdata('logged_in');
+    }
+
     public function getId ()
     {
         return isset($this->_data['user_id']) ? $this->_data['user_id'] : null;

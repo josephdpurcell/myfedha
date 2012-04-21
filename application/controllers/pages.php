@@ -4,6 +4,11 @@ class Pages extends CI_Controller {
 
 	public function index ()
 	{
+        // logged in users should see dashboard
+        if ($this->user->logged_in) {
+            header('Location: /dashboard');
+            exit;
+        }
         $this->about();
 	}
 
