@@ -68,8 +68,8 @@
         <nav id="navigation" class="grid_12">
             <ul>
                 <li><a href="/dashboard" class="<?php echo ($this->uri->segment(1)=='dashboard')?'active':''; ?>">Dashboard</a></li>
-                <li><a href="/accounts" class="<?php echo ($this->uri->segment(1)=='accounts')?'active':''; ?>">Accounts</a></li>
-                <li><a href="/transactions" class="<?php echo ($this->uri->segment(1)=='transactions')?'active':''; ?>">Transactions</a></li>
+                <li><a href="/accounts" class="<?php echo (in_array($this->uri->segment(1),array('accounts','transactions')))?'active':''; ?>">Accounts</a></li>
+                <li><a href="/budget" class="<?php echo ($this->uri->segment(1)=='budget')?'active':''; ?>">Budget</a></li>
             </ul>
         </nav>
         <!-- end navigation -->

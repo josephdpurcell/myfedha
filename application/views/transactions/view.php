@@ -1,5 +1,5 @@
 	<div id="body">
-        <h2><?php echo $account->name; ?></h2>
+        <h2><?php echo $account->name.': $'.number_format($account->amount,2); ?></h2>
 
         <form method="post" action="/transactions/add/<?php echo $account->slug; ?>">
         <input name="add" type="submit" class="submit" value="Add">

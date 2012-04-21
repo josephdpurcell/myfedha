@@ -1,10 +1,16 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
-require_once('model.php');
 
 /**
  * Dependencies: user, account
  */
 class Account extends Model {
+
+    var $types = array(
+            'asset'=>'Asset',
+            'liability'=>'Liability',
+            'income'=>'Income',
+            'expense'=>'Expense'
+            );
 
     public function getId ()
     {
@@ -62,6 +68,7 @@ class Account extends Model {
         $account['name'] = $this->input->post('name');
         $account['description'] = $this->input->post('description');
         $account['amount'] = $this->input->post('amount');
+        $account['type'] = $this->input->post('type');
         $account['default'] = (bool) $this->input->post('default');
         $account['created'] = date("Y-m-d H:i:s");
 
@@ -85,6 +92,7 @@ class Account extends Model {
         $account['name'] = $this->input->post('name');
         $account['description'] = $this->input->post('description');
         $account['amount'] = $this->input->post('amount');
+        $account['type'] = $this->input->post('type');
         $account['default'] = (bool) $this->input->post('default');
 
         // check if account exists

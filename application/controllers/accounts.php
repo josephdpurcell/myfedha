@@ -33,8 +33,9 @@ class Accounts extends CI_Controller {
             }
         }
 
+        $body['types'] = $this->account->types;
 		$this->load->view('t/header');
-		$this->load->view('accounts/add');
+		$this->load->view('accounts/add',$body);
 		$this->load->view('t/footer');
     }
 
@@ -61,6 +62,7 @@ class Accounts extends CI_Controller {
             $account->default = $this->input->post('default');
         }
 
+        $body['types'] = $this->account->types;
         $body['account'] = (object) $account;
 		$this->load->view('t/header');
 		$this->load->view('accounts/edit',$body);

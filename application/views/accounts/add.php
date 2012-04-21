@@ -18,6 +18,11 @@
                 <input type="amount" value="<?php echo $this->input->post('amount'); ?>" name="amount" id="amount" class="text large required">
             </p>
             <p>
+                <label for="types">Type</label>
+                <br>
+                <?php echo form_dropdown('type',$types,$this->input->post('type'),'class="select required"'); ?>
+            </p>
+            <p>
                 <label for="default">Default</label>
                 <?php echo form_checkbox('default', 'default', (bool) $this->input->post('default')); ?>
             </p>

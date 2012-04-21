@@ -18,6 +18,7 @@ CREATE TABLE `users` (
   `enabled` tinyint(1) NOT NULL DEFAULT '0',
   `email` varchar(255) DEFAULT NULL,
   `confirmation_code` varchar(255) DEFAULT NULL,
+  `status` varchar(255) NOT NULL DEFAULT 'active',
   `created` datetime NOT NULL,
   `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`user_id`),
@@ -31,11 +32,14 @@ CREATE TABLE `accounts` (
   `name` varchar(255) NOT NULL,
   `description` varchar(255) DEFAULT NULL,
   `amount` double NOT NULL,
+  `type` varchar(255) NOT NULL,
+  `status` varchar(255) NOT NULL DEFAULT 'active',
+  `default` tinyint(1) DEFAULT '0',
   `parent_id` int(255) unsigned DEFAULT NULL,
   `created` datetime NOT NULL,
   `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`account_id`),
-  UNIQUE KEY `name` (`user_id`,`name`)
+  UNIQUE KEY `user_id` (`user_id`,`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `transactions` (
@@ -45,8 +49,9 @@ CREATE TABLE `transactions` (
   `description` varchar(255) NOT NULL,
   `to_account_id` int(255) unsigned NOT NULL,
   `from_account_id` int(255) unsigned NOT NULL,
+  `split_transaction_id` int(255) unsigned NOT NULL,
   `tags` varchar(255) NOT NULL,
-  `status` varchar(255) NOT NULL DEFAULT 'pending',
+  `status` varchar(255) NOT NULL DEFAULT 'completed',
   `date` datetime NOT NULL,
   `created` datetime NOT NULL,
   `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,

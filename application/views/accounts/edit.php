@@ -18,6 +18,11 @@
                 <input type="amount" value="<?php echo $account->amount; ?>" name="amount" id="amount" class="text large required">
             </p>
             <p>
+                <label for="types">Type</label>
+                <br>
+                <?php echo form_dropdown('type',$types,$account->type,'class="select required"'); ?>
+            </p>
+            <p>
                 <label for="default">Default</label>
                 <?php echo form_checkbox('default', 'default', (bool) $account->default); ?>
             </p>
