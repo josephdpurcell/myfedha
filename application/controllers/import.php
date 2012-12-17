@@ -33,8 +33,9 @@ class Import extends CI_Controller {
 
 	public function index ()
 	{
+		$header['file_uploader'] = true;
         $body['account'] = $this->account;
-		$this->load->view('t/header');
+		$this->load->view('t/header',$header);
 		$this->load->view('import/index',$body);
 		$this->load->view('t/footer');
 	}

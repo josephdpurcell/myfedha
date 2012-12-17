@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="utf-8">
-	<title>MyFedha - Double entry done right.</title>
+    <meta charset="utf-8">
+    <title>MyFedha - Double entry done right.</title>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
     <script src="/js/jquery.validate.js"></script>
-    <script src="/js/login.js"></script>
-    <script src="/js/jquery.tipsy.js"></script>
+<!--
+    <script type="text/javascript" src="/js/jquery.flot.pack.js"></script>
+    <script src="/js/graphs.js"></script>
+-->
+    <!--<script src="/js/jquery.tipsy.js"></script>-->
     <script src="/js/scripts.js"></script>
-    <script src="/js/facebox.js"></script>
-    <script type="text/javascript" src="js/jquery.flot.pack.js"></script>
+    <!--<script src="/js/facebox.js"></script>-->
     <!--[if IE]>
     <script language="javascript" type="text/javascript" src="js/excanvas.pack.js"></script>
     <![endif]-->
@@ -22,11 +24,28 @@
     </script>        
     <![endif]-->
 
-    <script src="/js/graphs.js"></script>
+    <link href="/css/facebox.css" rel="stylesheet">
+    <link href="/css/theme-style.css" rel="stylesheet">
+    <link href="/css/myfedha-style.css" rel="stylesheet">
 
-    <link href="/css/facebox.css" rel="stylesheet" type="text/css" />
-    <link href="/css/theme-style.css" rel="stylesheet" type="text/css">
-    <link href="/css/myfedha-style.css" rel="stylesheet" type="text/css">
+    <?php if ($file_uploader){ ?>
+    <link rel="stylesheet" href="/js/jquery-fileupload/css/jquery.fileupload-ui.css">
+	<link rel="stylesheet" href="http://blueimp.github.com/cdn/css/bootstrap.min.css">
+
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+	<script src="/js/jquery-fileupload/vendor/jquery.ui.widget.js"></script>
+	<script src="http://blueimp.github.com/JavaScript-Templates/tmpl.min.js"></script>
+	<script src="http://blueimp.github.com/JavaScript-Load-Image/load-image.min.js"></script>
+	<script src="http://blueimp.github.com/JavaScript-Canvas-to-Blob/canvas-to-blob.min.js"></script>
+	<script src="http://blueimp.github.com/cdn/js/bootstrap.min.js"></script>
+	<script src="http://blueimp.github.com/Bootstrap-Image-Gallery/js/bootstrap-image-gallery.min.js"></script>
+
+	<script src="/js/jquery-fileupload/jquery.iframe-transport.js"></script>
+	<script src="/js/jquery-fileupload/jquery.fileupload.js"></script>
+	<script src="/js/jquery-fileupload/jquery.fileupload-fp.js"></script>
+	<script src="/js/jquery-fileupload/jquery.fileupload-ui.js"></script>
+	<script src="/js/jquery-fileupload/main.js"></script>
+    <?php } ?>
 
 </head>
 <body>
@@ -42,13 +61,13 @@
         <!-- end logo -->
         
         <!-- start control panel -->
-    	<div id="controlpanel" class="grid_8">
+        <div id="controlpanel" class="grid_8">
         
             <ul>
             
                 <?php if ($this->session->userdata('logged_in')) { ?>
 
-    			<li><p>Signed in as <strong><?php echo $this->user->name; ?></strong></p></li>
+                <li><p>Signed in as <strong><?php echo $this->user->name; ?></strong></p></li>
                 <li><a href="/users/change_password" class="first">Settings</a></li>
                 <li><a href="/users/logout" class="last">Sign Out</a></li>
 

@@ -43,16 +43,18 @@ $(document).ready(function() {
 		$(this).fadeOut(700);
 	});
 	
-	$("#icondock li a").tipsy ({ gravity: 'n' });
+	//$("#icondock li a").tipsy ({ gravity: 'n' });
 	
+/*
 	// Load Facebox - simple add "rel="facebook" to any link to activate Modal Dialog
 	$('a[rel*=facebox]').facebox({
         loadingImage : 'images/loading.gif',
         closeImage   : 'images/closelabel.png'
       })
+*/
 	  
 	  // Load WYSIWYG Editor - add class 'wysiwyg' to any textarea to add functionality.
-	$('.wysiwyg').wysiwyg();
+	//$('.wysiwyg').wysiwyg();
 	  
 	
 	
