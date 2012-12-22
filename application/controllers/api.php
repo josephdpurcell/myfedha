@@ -16,7 +16,10 @@ class Api extends CI_Controller {
 	public function upload()
 	{
 		require('UploadHandler.php');
-		$upload_handler = new UploadHandler();
+		$upload_handler = new UploadHandler(array(
+			'user_dirs' => true,
+			'download_via_php' => true
+		));
 	}
 
 }

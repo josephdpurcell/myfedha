@@ -28,7 +28,7 @@
     <link href="/css/theme-style.css" rel="stylesheet">
     <link href="/css/myfedha-style.css" rel="stylesheet">
 
-    <?php if ($file_uploader){ ?>
+    <?php if (isset($file_uploader) && $file_uploader){ ?>
     <link rel="stylesheet" href="/js/jquery-fileupload/css/jquery.fileupload-ui.css">
 	<link rel="stylesheet" href="http://blueimp.github.com/cdn/css/bootstrap.min.css">
 
