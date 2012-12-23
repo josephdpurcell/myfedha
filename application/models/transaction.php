@@ -50,6 +50,46 @@ class Transaction extends Model {
         return $this->db->where(array('user_id'=>$this->user->id,'transaction_id'=>$this->db->insert_id()))->get('transactions')->row();
     }
 
+	public function bulk_insert($data)
+	{
+		$this->db->trans_start();
+
+		foreach ($data as $k=>$t) {
+			// insert
+			$this->transaction->internal_insert($t);
+
+			// check for errors
+			if ($this->db->_error_number()==1062) {
+				// this record is a duplicate
+				$this->duplicates++;
+			} else if ($this->db->trans_status() === false) {
+				// this record flat out failed
+				$this->db->trans_rollback();
+				throw new Exception("Saving transaction failed.");
+			}
+		}
+
+        // commit
+        $this->db->trans_commit();
+	}
+
+	/**
+	 * this is meant to be wrapped in a transaction statement
+	 */
+    public function internal_insert($t)
+    {
+        $result = $this->db->insert('transactions', $t);
+
+		if (!$result) {
+			return false;
+		} else {
+			// PLAY TRANSACTION ON ACCOUNTS
+			$this->account->amount = $this->account->amount + $t['amount'];
+			$result = $this->db->where(array('user_id'=>$this->user->id,'account_id'=>$this->account->id))->update('accounts',$this->account);
+			return (bool) $result;
+		}
+    }
+
     public function update ()
     {
         $this->db->trans_start();

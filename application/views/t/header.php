@@ -88,7 +88,6 @@
             <ul>
                 <li><a href="/dashboard" class="<?php echo ($this->uri->segment(1)=='dashboard')?'active':''; ?>">Dashboard</a></li>
                 <li><a href="/accounts" class="<?php echo (in_array($this->uri->segment(1),array('accounts','transactions')))?'active':''; ?>">Accounts</a></li>
-                <li><a href="/budget" class="<?php echo ($this->uri->segment(1)=='budget')?'active':''; ?>">Budget</a></li>
                 <li><a href="/import" class="<?php echo ($this->uri->segment(1)=='import')?'active':''; ?>">Import</a></li>
             </ul>
         </nav>

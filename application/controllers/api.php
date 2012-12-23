@@ -72,12 +72,41 @@ class Api extends CI_Controller {
 		if (file_exists($file)) {
 			$contents = file_get_contents($file);
 			$contents = json_decode($contents, true);
+
+			// gather data
+			$data = array();
 			foreach ($contents['transactions'] as $i=>$c) {
-				echo $i.') '.$c['description']."\n";
+				$t = array();
+				$debit = ($c['bookkeeping_type']=='debit' ? -1 : 1);
+				$t['user_id'] = $this->user->id;
+				$t['to_account_id'] = $this->account->id;
+				$t['date'] = preg_replace('/\.[^\.]*$/','',$c['times']['when_recorded_local']); // strip seconds
+				$t['amount'] = ($c['amounts']['amount'] / 10000 * $debit);
+				$t['description'] = $c['description'];
+				$t['tags'] = $c['categories'][0]['name'];
+				$t['created'] = date("Y-m-d H:i:s");
+				$t['simple_id'] = $c['uuid'];
+				$data[] = $t;
 			}
-			$retval = true;
+
+			// bulk insert
+			try {
+				$this->transaction->bulk_insert($data);
+				$retval = array(
+					'success' => true,
+					'message' => $this->transaction->duplicates.' duplicates were found.'
+					);
+			} catch(Exception $e) {
+				$retval = array(
+					'success' => false,
+					'message' => $e->getMessage()
+					);
+			}
 		} else {
-			$retval = false;
+			$retval = array(
+				'success' => false,
+				'message' => 'Uploaded file not found'
+				);
 		}
 
 		echo json_encode($retval);

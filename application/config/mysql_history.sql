@@ -59,3 +59,8 @@ CREATE TABLE `transactions` (
   UNIQUE KEY `amount` (`user_id`,`amount`,`description`,`to_account_id`,`date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- --------------------------------------------------------
+-- Add simple_id
+-- December 23, 2012
+
+ALTER TABLE `transactions` ADD `simple_id` VARCHAR(255) AFTER `modified`;
