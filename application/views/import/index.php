@@ -62,12 +62,16 @@ $(document).ready(function(){
 			},
 			dataType: 'json',
 			success: function(response){
-				console.log('success');
-				console.log(response);
+				var html = '<div class="notification success canhide"><p><strong>SUCCESS: </strong> Transactions were imported!</p> </div>';
+				$('#main_content_wrap').prepend(html);
 			},
 			failure: function(response){
-				console.log('err');
-				console.log(response);
+				if (typeof(reponse.message)!='undefined') {
+					var html = '<div class="notification failure canhide"><p><strong>FAILURE: </strong>'+response.message+'</p></div>';
+				} else {
+					var html = '<div class="notification failure canhide"><p><strong>FAILURE: </strong>Could not import file for unknown reason.</p></div>';
+				}
+				$('#main_content_wrap').prepend(html);
 			},
 		});
 		return false;
