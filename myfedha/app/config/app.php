@@ -65,7 +65,7 @@ return array(
 	|
 	*/
 
-	'key' => 'S7FLsF4wQqwMzPXbeW4AE4WdAH5fLu7u',
+	'key' => '1XrH7tKl7NK6oqa32w17mNZDPx1wyObE',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -81,7 +81,6 @@ return array(
 	'providers' => array(
 
 		'Illuminate\Foundation\Providers\ArtisanServiceProvider',
-		'Illuminate\Auth\AuthServiceProvider',
 		'Illuminate\Cache\CacheServiceProvider',
 		'Illuminate\Foundation\Providers\CommandCreatorServiceProvider',
 		'Illuminate\Session\CommandsServiceProvider',
@@ -92,7 +91,6 @@ return array(
 		'Illuminate\Encryption\EncryptionServiceProvider',
 		'Illuminate\Filesystem\FilesystemServiceProvider',
 		'Illuminate\Hashing\HashServiceProvider',
-		'Illuminate\Html\HtmlServiceProvider',
 		'Illuminate\Foundation\Providers\KeyGeneratorServiceProvider',
 		'Illuminate\Log\LogServiceProvider',
 		'Illuminate\Mail\MailServiceProvider',
@@ -103,7 +101,6 @@ return array(
 		'Illuminate\Foundation\Providers\PublisherServiceProvider',
 		'Illuminate\Queue\QueueServiceProvider',
 		'Illuminate\Redis\RedisServiceProvider',
-		'Illuminate\Auth\Reminders\ReminderServiceProvider',
 		'Illuminate\Foundation\Providers\RouteListServiceProvider',
 		'Illuminate\Database\SeedServiceProvider',
 		'Illuminate\Foundation\Providers\ServerServiceProvider',
@@ -114,6 +111,22 @@ return array(
 		'Illuminate\View\ViewServiceProvider',
 		'Illuminate\Workbench\WorkbenchServiceProvider',
 
+		'Orchestra\Asset\AssetServiceProvider',
+		'Orchestra\Auth\AuthServiceProvider',
+		'Orchestra\View\DecoratorServiceProvider',
+		'Orchestra\Extension\ExtensionServiceProvider',
+		'Orchestra\Facile\FacileServiceProvider',
+		'Orchestra\Html\HtmlServiceProvider',
+		'Orchestra\Memory\MemoryServiceProvider',
+		'Orchestra\Support\MessagesServiceProvider',
+		'Orchestra\Extension\PublisherServiceProvider',
+		'Orchestra\Foundation\Reminders\ReminderServiceProvider',
+		'Orchestra\Resources\ResourcesServiceProvider',
+		'Orchestra\Foundation\SiteServiceProvider',
+		'Orchestra\View\ViewServiceProvider',
+		'Orchestra\Widget\WidgetServiceProvider',
+		
+		'Orchestra\Foundation\FoundationServiceProvider',
 	),
 
 	/*
@@ -144,6 +157,7 @@ return array(
 
 		'App'             => 'Illuminate\Support\Facades\App',
 		'Artisan'         => 'Illuminate\Support\Facades\Artisan',
+		'Asset'           => 'Orchestra\Support\Facades\Asset',
 		'Auth'            => 'Illuminate\Support\Facades\Auth',
 		'Blade'           => 'Illuminate\Support\Facades\Blade',
 		'Cache'           => 'Illuminate\Support\Facades\Cache',
@@ -155,6 +169,7 @@ return array(
 		'DB'              => 'Illuminate\Support\Facades\DB',
 		'Eloquent'        => 'Illuminate\Database\Eloquent\Model',
 		'Event'           => 'Illuminate\Support\Facades\Event',
+		'Facile'          => 'Orchestra\Support\Facades\Facile',
 		'File'            => 'Illuminate\Support\Facades\File',
 		'Form'            => 'Illuminate\Support\Facades\Form',
 		'Hash'            => 'Illuminate\Support\Facades\Hash',
@@ -174,11 +189,11 @@ return array(
 		'Schema'          => 'Illuminate\Support\Facades\Schema',
 		'Seeder'          => 'Illuminate\Database\Seeder',
 		'Session'         => 'Illuminate\Support\Facades\Session',
-		'Str'             => 'Illuminate\Support\Str',
+		'Str'             => 'Orchestra\Support\Str',
+		'Theme'           => 'Orchestra\Support\Facades\Theme',
 		'URL'             => 'Illuminate\Support\Facades\URL',
 		'Validator'       => 'Illuminate\Support\Facades\Validator',
 		'View'            => 'Illuminate\Support\Facades\View',
-
 	),
 
 );

@@ -1,9 +1,12 @@
 {
-	"name": "laravel/laravel",
-	"description": "The Laravel Framework.",
-	"keywords": ["framework", "laravel"],
+	"name": "orchestra/platform",
+	"description": "Orchestra Platform",
+	"homepage": "http://orchestraplatform.com/docs/2.0/",
+	"keywords": ["framework", "laravel", "orchestra-platform", "orchestral"],
 	"require": {
-		"laravel/framework": "4.0.*"
+		"orchestra/foundation": "2.0.*",
+		"orchestra/control": "2.0.*",
+		"orchestra/story": "2.0.*"
 	},
 	"autoload": {
 		"classmap": [
@@ -17,13 +20,15 @@
 	},
 	"scripts": {
 		"post-install-cmd": [
-			"php artisan optimize"
+			"php artisan optimize",
+			"php artisan asset:publish orchestra/foundation"
 		],
 		"pre-update-cmd": [
 			"php artisan clear-compiled"
 		],
 		"post-update-cmd": [
-			"php artisan optimize"
+			"php artisan optimize",
+			"php artisan asset:publish orchestra/foundation"
 		],
 		"post-create-project-cmd": [
 			"php artisan key:generate"
@@ -32,5 +37,5 @@
 	"config": {
 		"preferred-install": "dist"
 	},
-	"minimum-stability": "dev"
+	"minimum-stability": "RC"
 }
