@@ -1,0 +1,7 @@
+{
+    "require": {
+        "slim/slim": "2.4.3",
+        "jasny/dbquery": "*@dev",
+        "jasny/db": "*@dev"
+    }
+}

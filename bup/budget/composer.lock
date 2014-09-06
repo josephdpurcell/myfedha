@@ -1,0 +1,119 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
+    ],
+    "hash": "5c2bc8a110c9b45328a385821c069f61",
+    "packages": [
+        {
+            "name": "jasny/dbquery",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jasny/dbquery.git",
+                "reference": "8be59162dcb623b1da8ce9da9055d13f51250286"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jasny/dbquery/zipball/8be59162dcb623b1da8ce9da9055d13f51250286",
+                "reference": "8be59162dcb623b1da8ce9da9055d13f51250286",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "suggest": {
+                "jasny/db": "Jasny's DB layer for the masses (it's good)"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Jasny\\DB\\MySQL\\Query": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Arnold Daniels",
+                    "email": "arnold@jasny.net",
+                    "homepage": "http://www.jasny.net"
+                }
+            ],
+            "description": "The best and most complete query builder/parser (for MySQL)",
+            "homepage": "http://jasny.github.com/dbquery",
+            "keywords": [
+                "database",
+                "db",
+                "query",
+                "query builder",
+                "sql"
+            ],
+            "time": "2014-01-26 02:02:48"
+        },
+        {
+            "name": "slim/slim",
+            "version": "2.4.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/codeguy/Slim.git",
+                "reference": "4906b77a07c7bd6ff1a99aea903e940a2d4fa106"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/codeguy/Slim/zipball/4906b77a07c7bd6ff1a99aea903e940a2d4fa106",
+                "reference": "4906b77a07c7bd6ff1a99aea903e940a2d4fa106",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "suggest": {
+                "ext-mcrypt": "Required for HTTP cookie encryption"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Slim": "."
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Josh Lockhart",
+                    "email": "info@joshlockhart.com",
+                    "homepage": "http://www.joshlockhart.com/"
+                }
+            ],
+            "description": "Slim Framework, a PHP micro framework",
+            "homepage": "http://github.com/codeguy/Slim",
+            "keywords": [
+                "microframework",
+                "rest",
+                "router"
+            ],
+            "time": "2014-04-05 18:33:59"
+        }
+    ],
+    "packages-dev": [
+
+    ],
+    "aliases": [
+
+    ],
+    "minimum-stability": "stable",
+    "stability-flags": {
+        "jasny/dbquery": 20
+    },
+    "platform": [
+
+    ],
+    "platform-dev": [
+
+    ]
+}
