@@ -40,10 +40,9 @@ $app = new \Slim\Slim(array(
 ));
 
 $app->get('/transaction', function () {
-    $transactions = Transaction::all();
+    $transactions = Transaction::orderBy('date', 'DESC')->get();
     echo $transactions->toJson();
 });
-
 
 $app->get('/transaction/:id', function ($id) {
     $t = Transaction::find($id);
@@ -59,6 +58,7 @@ $app->post('/transaction', function () {
     $t = new Transaction;
     $t->amount = $data->amount;
     $t->description = $data->description;
+    $t->date = $data->date;
     $t->save();
     echo $t->toJson();
 });
@@ -72,6 +72,7 @@ $app->put('/transaction/:id', function ($id) {
 
     $t->amount = $data->amount;
     $t->description = $data->description;
+    $t->date = $data->date;
     $t->save();
     echo $t->toJson();
 });
