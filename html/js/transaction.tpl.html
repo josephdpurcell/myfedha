@@ -17,13 +17,17 @@
   </tbody>
 </table>
 
-<div ng-show="total < 300">
-  <p><strong class="text-success">Spent: {{total | currency:$}}</strong></p>
-  <p><strong class="text-success">Available: {{300 - total | currency:$}}</strong></p>
+<div ng-show="trending < 100">
+  <p><strong class="text-success">{{total | currency:$}} Spent, Target for Today was: {{goalToday | currency:$}}</strong></p>
+  <p><strong class="text-success">{{300 - total | currency:$}} Balance</strong></p>
+  <p><strong class="text-success">{{total / 300 * 100 | number:0}}% of Monthly Budget Spent</strong></p>
+  <p><strong class="text-success">{{total / goalToday * 100 | number:0}}% trending under budget</strong></p>
 </div>
-<div ng-show="total > 300">
-  <p><strong class="text-danger">{{total | currency:$}} Spent</strong></p>
-  <p><strong class="text-danger">{{total - 300 | currency:$}} Over Budget</strong></p>
+<div ng-show="trending > 100">
+  <p><strong class="text-danger">{{total | currency:$}} Spent, Target for Today was: {{goalToday | currency:$}}</strong></p>
+  <p><strong class="text-danger">{{300 - total | currency:$}} Balance</strong></p>
+  <p><strong class="text-danger">{{total / 300 * 100 | number:0}}% of Monthly Budget Spent</strong></p>
+  <p><strong class="text-danger">{{total / goalToday * 100 | number:0}}% Trending Over Budget</strong></p>
 </div>
 
 <form>
