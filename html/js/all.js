@@ -1,3 +1,7 @@
+/**
+ * @todo: Design a pager that is a daterange that can be +/-
+ * @todo: Add goals that are tied to a daterange.
+ */
 angular.module('myfedha', [
   'ui.router'
 ])
@@ -121,6 +125,12 @@ angular.module('myfedha', [
   $scope.edit = function(id){
     $state.go('app.transaction.edit', {id:id});
   };
+  var goal = 300;
+  var daysInMonth = moment().endOf('month').format('D');
+  var goalPerDay = goal / daysInMonth;
+  var goalToday = goalPerDay * moment().format('D');
+  $scope.goalToday = goalToday;
+  $scope.trending = 0;
   $scope.total = 0;
   var start = moment().startOf('month').unix();
   var end = moment().endOf('month').unix();
@@ -135,7 +145,7 @@ angular.module('myfedha', [
         }
       }
       $scope.total = total;
-      console.log($scope.total);
+      $scope.trending = total / goalToday * 100;
       $scope.transactions = data;
     }).
     error(function(data, status, headers, config) {

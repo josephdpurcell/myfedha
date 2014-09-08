@@ -49,15 +49,15 @@ $app->get('/transaction', function () {
     if ($start && $end) {
         $from = date( 'Y-m-d G:i:s', $start);
         $to = date( 'Y-m-d G:i:s', $end);
-        $transactions = Transaction::whereBetween('date', array($from, $to))->get();
+        $transactions = Transaction::orderBy('date', 'ASC')->whereBetween('date', array($from, $to))->get();
     } elseif ($start) {
         $from = date( 'Y-m-d G:i:s', $start);
-        $transactions = Transaction::where('date', '>=', $from)->get();
+        $transactions = Transaction::orderBy('date', 'ASC')->where('date', '>=', $from)->get();
     } elseif ($end) {
         $to = date( 'Y-m-d G:i:s', $end);
-        $transactions = Transaction::where('date', '<=', $to)->get();
+        $transactions = Transaction::orderBy('date', 'ASC')->where('date', '<=', $to)->get();
     } else {
-        $transactions = Transaction::orderBy('date', 'DESC')->get();
+        $transactions = Transaction::orderBy('date', 'ASC')->get();
     }
     echo $transactions->toJson();
 });
@@ -69,10 +69,8 @@ $app->get('/transaction/:id', function ($id) {
 
 $app->post('/transaction', function () {
     global $app;
-
     $body = $app->request->getBody();
     $data = json_decode($body);
-
     $t = new Transaction;
     $t->amount = $data->amount;
     $t->description = $data->description;
