@@ -1,9 +1,9 @@
 <h1>Edit</h1>
-<form name="editTransaction" novalidate ng-submit="save(transaction, editTransaction.$valid)">
+<form name="editTransaction" novalidate ng-submit="save(editTransaction.$valid, transaction)">
   <div class="form-group">
     <div class="input-group">
       <div class="input-group-addon">$</div>
-      <input name="amount" type="text" class="form-control" ng-model="transaction.amount" placeholder="amount" ng-pattern="/^\d+(\.[0-9]{2})?$/" required title="The dollar amount, e.g. $10.00.">
+      <input name="amount" type="text" class="form-control" ng-model="transaction.amount" placeholder="amount" ng-pattern="/^\d+(\.[0-9]{2})?$/" required title="The dollar amount, e.g. $10.00." focus="true">
     </div>
     <p ng-show="(editTransaction.$submitted || editTransaction.amount.$dirty) && editTransaction.amount.$invalid" class="help-block">The amount is required and must be in the currency format, e.g. $10.00.</p>
   </div>

@@ -39,8 +39,26 @@ $app = new \Slim\Slim(array(
     'debug' => true
 ));
 
+$app->response->headers->set('Content-Type', 'application/json');
+
 $app->get('/transaction', function () {
-    $transactions = Transaction::orderBy('date', 'DESC')->get();
+    global $app;
+    $req = $app->request();
+    $start = $req->get('start');
+    $end = $req->get('end');
+    if ($start && $end) {
+        $from = date( 'Y-m-d G:i:s', $start);
+        $to = date( 'Y-m-d G:i:s', $end);
+        $transactions = Transaction::whereBetween('date', array($from, $to))->get();
+    } elseif ($start) {
+        $from = date( 'Y-m-d G:i:s', $start);
+        $transactions = Transaction::where('date', '>=', $from)->get();
+    } elseif ($end) {
+        $to = date( 'Y-m-d G:i:s', $end);
+        $transactions = Transaction::where('date', '<=', $to)->get();
+    } else {
+        $transactions = Transaction::orderBy('date', 'DESC')->get();
+    }
     echo $transactions->toJson();
 });
 

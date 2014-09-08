@@ -1,12 +1,26 @@
-Date.prototype.toMysqlFormat = function () {
-    function pad(n) { return n < 10 ? '0' + n : n }
-    return this.getFullYear() + "-" + pad(1 + this.getMonth()) + "-" + pad(this.getDate()) + " " + pad(this.getHours()) + ":" + pad(this.getMinutes()) + ":" + pad(this.getSeconds());
-};
-
-
 angular.module('myfedha', [
   'ui.router'
 ])
+
+/**
+ * AutoFocus Directive
+ */
+.directive('focus', function($timeout) {
+  return {
+    scope : {
+      trigger : '@focus'
+    },
+    link : function(scope, element) {
+      scope.$watch('trigger', function(value) {
+        if (value === "true") {
+          $timeout(function() {
+            element[0].focus();
+          });
+        }
+      });
+    }
+  };
+})
 
 /**
  * App Configuration
@@ -18,9 +32,6 @@ angular.module('myfedha', [
   // Viewing the home page
   $stateProvider.state('app', {
     url: '/',
-    onEnter: function(){
-      console.log('You have entered app.');
-    },
     views: {
       'app': {
         templateUrl: '/js/app.tpl.html',
@@ -32,9 +43,6 @@ angular.module('myfedha', [
   // Transaction landing page
   $stateProvider.state( 'app.transaction', {
     url: 'transaction',
-    onEnter: function(){
-      console.log('You have entered app.transaction');
-    },
     views: {
       'app@': {
         templateUrl: '/js/transaction.tpl.html',
@@ -46,9 +54,6 @@ angular.module('myfedha', [
   // Add
   $stateProvider.state( 'app.transaction.add', {
     url: '/add',
-    onEnter: function(){
-      console.log('You have entered app.transaction.add');
-    },
     views: {
       'app@': {
         templateUrl: '/js/transaction_add.tpl.html',
@@ -60,9 +65,6 @@ angular.module('myfedha', [
   // Edit
   $stateProvider.state( 'app.transaction.edit', {
     url: '/:id/edit',
-    onEnter: function(){
-      console.log('You have entered app.transaction.edit');
-    },
     views: {
       'app@': {
         templateUrl: '/js/transaction_edit.tpl.html',
@@ -115,11 +117,14 @@ angular.module('myfedha', [
  * Transaction
  */
 .controller('TransactionCtrl', function TransactionCtrl($scope, $state, $http){
+  $scope.title = moment().format('MMMM YYYY');
   $scope.edit = function(id){
     $state.go('app.transaction.edit', {id:id});
   };
   $scope.total = 0;
-  $http({method: 'GET', url: '/api/transaction'}).
+  var start = moment().startOf('month').unix();
+  var end = moment().endOf('month').unix();
+  $http({method: 'GET', url: '/api/transaction', params:{start:start,end:end}}).
     success(function(data, status, headers, config) {
       var total = 0;
       var value = 0;
@@ -145,9 +150,9 @@ angular.module('myfedha', [
   $scope.transaction = {
     description: '',
     amount: '',
-    date: new Date().toMysqlFormat()
+    date: moment().format('YYYY-MM-DD HH:mm:ss')
   };
-  $scope.save = function(transaction, valid) {
+  $scope.save = function(valid, transaction) {
     $scope.addTransaction.submitted = true;
     if (valid) {
       $http({method: 'POST', url: '/api/transaction', data:JSON.stringify(transaction)}).
@@ -180,7 +185,7 @@ angular.module('myfedha', [
       alert('Error');
     });
 
-  $scope.save = function(transaction, valid) {
+  $scope.save = function(valid, transaction) {
     if (valid) {
       $http({method: 'PUT', url: '/api/transaction/'+$stateParams.id, data:JSON.stringify(transaction)}).
         success(function(data, status, headers, config) {
