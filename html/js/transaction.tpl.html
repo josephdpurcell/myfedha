@@ -1,0 +1,11 @@
+<h1>Transactions</h1>
+
+<ul>
+  <li ng-repeat="t in transactions">{{t.amount | currency:$}} - {{t.description}} <a ui-sref="app.transaction.edit({id:t.id})">Edit</a></li>
+</ul>
+
+<p>
+<strong>{{total | currency:$}}</strong>
+</p>
+
+<a ui-sref="app.transaction.add" class="btn btn-primary">Add</a>
