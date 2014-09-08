@@ -1,13 +1,23 @@
 <h1>Edit</h1>
-<form>
-  <input type="text" ng-model="transaction.description" placeholder="description" length="50">
-  <br>
-  <br>
-  <input type="text" ng-model="transaction.amount" placeholder="amount" length="50">
-  <br>
-  <br>
-  <a class="btn btn-primary" ng-click="save(transaction)">Save</a>
-  <br>
-  <br>
-  <a class="btn btn-danger" ng-click="delete(transaction)">Delete</a>
+<form name="editTransaction" novalidate ng-submit="save(transaction, editTransaction.$valid)">
+  <div class="form-group">
+    <div class="input-group">
+      <div class="input-group-addon">$</div>
+      <input name="amount" type="text" class="form-control" ng-model="transaction.amount" placeholder="amount" ng-pattern="/^\d+(\.[0-9]{2})?$/" required title="The dollar amount, e.g. $10.00.">
+    </div>
+    <p ng-show="(editTransaction.$submitted || editTransaction.amount.$dirty) && editTransaction.amount.$invalid" class="help-block">The amount is required and must be in the currency format, e.g. $10.00.</p>
+  </div>
+  <div class="form-group">
+    <input name="description" type="text" class="form-control" ng-model="transaction.description" placeholder="description" required>
+    <p ng-show="(editTransaction.$submitted || editTransaction.description.$dirty) && editTransaction.description.$invalid" class="help-block">The description is required.</p>
+  </div>
+  <div class="form-group">
+    <input name="date" type="datetime" class="form-control" ng-model="transaction.date" placeholder="date" required>
+    <p ng-show="(editTransaction.$submitted || editTransaction.date.$dirty) && editTransaction.date.$invalid" class="help-block">The date is required.</p>
+  </div>
+  <div class="form-group">
+    <input type="submit" class="btn btn-primary" value="Save">
+    <a class="btn" ui-sref="^">Cancel</a>
+    <a class="btn btn-danger pull-right" ng-click="delete(transaction)">Delete</a>
+  </div>
 </form>

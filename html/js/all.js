@@ -1,3 +1,9 @@
+Date.prototype.toMysqlFormat = function () {
+    function pad(n) { return n < 10 ? '0' + n : n }
+    return this.getFullYear() + "-" + pad(1 + this.getMonth()) + "-" + pad(this.getDate()) + " " + pad(this.getHours()) + ":" + pad(this.getMinutes()) + ":" + pad(this.getSeconds());
+};
+
+
 angular.module('myfedha', [
   'ui.router'
 ])
@@ -109,6 +115,9 @@ angular.module('myfedha', [
  * Transaction
  */
 .controller('TransactionCtrl', function TransactionCtrl($scope, $state, $http){
+  $scope.edit = function(id){
+    $state.go('app.transaction.edit', {id:id});
+  };
   $scope.total = 0;
   $http({method: 'GET', url: '/api/transaction'}).
     success(function(data, status, headers, config) {
@@ -135,17 +144,21 @@ angular.module('myfedha', [
 .controller('TransactionAddCtrl', function TransactionAddCtrl($scope, $state, $stateParams, Messages, $http) {
   $scope.transaction = {
     description: '',
-    amount: ''
+    amount: '',
+    date: new Date().toMysqlFormat()
   };
-  $scope.save = function(transaction) {
-    $http({method: 'POST', url: '/api/transaction', data:JSON.stringify(transaction)}).
-      success(function(data, status, headers, config) {
-        Messages.addMessage('Transaction added successfully!');
-        $state.go('app.transaction');
-      }).
-      error(function(data, status, headers, config) {
-        alert('Error');
-      });
+  $scope.save = function(transaction, valid) {
+    $scope.addTransaction.submitted = true;
+    if (valid) {
+      $http({method: 'POST', url: '/api/transaction', data:JSON.stringify(transaction)}).
+        success(function(data, status, headers, config) {
+          Messages.addMessage('Transaction added successfully!');
+          $state.go('app.transaction');
+        }).
+        error(function(data, status, headers, config) {
+          alert('Error');
+        });
+    }
   };
 })
 
@@ -155,7 +168,8 @@ angular.module('myfedha', [
 .controller('TransactionEditCtrl', function TransactionAddCtrl($scope, $state, $stateParams, Messages, $http) {
   $scope.transaction = {
     description: '',
-    amount: ''
+    amount: '',
+    date: ''
   };
 
   $http({method: 'GET', url: '/api/transaction/'+$stateParams.id}).
@@ -166,15 +180,21 @@ angular.module('myfedha', [
       alert('Error');
     });
 
-  $scope.save = function(transaction) {
-    $http({method: 'PUT', url: '/api/transaction/'+$stateParams.id, data:JSON.stringify(transaction)}).
-      success(function(data, status, headers, config) {
-        Messages.addMessage('Transaction updated successfully!');
-        $state.go('app.transaction');
-      }).
-      error(function(data, status, headers, config) {
-        alert('Error');
-      });
+  $scope.save = function(transaction, valid) {
+    if (valid) {
+      $http({method: 'PUT', url: '/api/transaction/'+$stateParams.id, data:JSON.stringify(transaction)}).
+        success(function(data, status, headers, config) {
+          Messages.addMessage('Transaction updated successfully!');
+          $state.go('app.transaction');
+        }).
+        error(function(data, status, headers, config) {
+          console.log(data);
+          console.log(status);
+          console.log(headers);
+          console.log(config);
+          alert('Error');
+        });
+    }
   };
 
   $scope.delete = function(transaction) {
