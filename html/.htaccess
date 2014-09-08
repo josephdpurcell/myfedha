@@ -1,3 +1,8 @@
 #Order allow,deny
 #Allow from 216.196.236.46
 
+AuthUserFile /www/myfedha.com/html/.htpasswd
+AuthName "User Login"
+AuthType Basic
+Require valid-user
+
