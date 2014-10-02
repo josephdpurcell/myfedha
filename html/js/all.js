@@ -3,7 +3,8 @@
  * @todo: Add goals that are tied to a daterange.
  */
 angular.module('myfedha', [
-  'ui.router'
+  'ui.router',
+  'ngCookies'
 ])
 
 /**
@@ -29,7 +30,25 @@ angular.module('myfedha', [
 /**
  * App Configuration
  */
-.config(function appConfig($stateProvider, $urlRouterProvider) {
+.config(function appConfig($stateProvider, $urlRouterProvider, $httpProvider) {
+
+  /*
+  $httpProvider.interceptors.push(function($q) {
+    return {
+      'request': function(config) {
+        // same as above
+        return config;
+      },
+      'response': function(response) {
+        if (response.status==401) {
+          window.location.href = 'http://myfedha.com/';
+        } else {
+          return response;
+        }
+      }
+    };
+  });
+  */
 
   $urlRouterProvider.otherwise('/');
 
@@ -40,6 +59,17 @@ angular.module('myfedha', [
       'app': {
         templateUrl: '/js/app.tpl.html',
         controller: 'AppCtrl'
+      }
+    }
+  });
+
+  // Login
+  $stateProvider.state( 'app.login', {
+    url: 'login',
+    views: {
+      'app@': {
+        templateUrl: '/js/login.tpl.html',
+        controller: 'LoginCtrl'
       }
     }
   });
@@ -79,19 +109,6 @@ angular.module('myfedha', [
 })
 
 /**
- * The Carbyne Core API
- */
-.factory('HALTalkResource', function HALTalkResource() {
-  return new Hyperagent.Resource({
-    url: '/app_dev.php/api',
-    headers: {
-      'Accept': 'application/hal+json, application/json, */*; q=0.01',
-      'X-Requested-With': 'XMLHttpRequest'
-    }
-  });
-})
-
-/**
  * A Messages Handler
  */
 .factory('Messages', function Messages(){
@@ -118,9 +135,32 @@ angular.module('myfedha', [
 })
 
 /**
+ * Login
+ */
+.controller('LoginCtrl', function LoginCtrl($scope, $state, $http, $cookies){
+  $scope.user = {
+    username: '',
+    password: ''
+  };
+  if ($cookies.access_token) {
+    $state.go('app.transaction');
+  }
+  $scope.login = function(valid, user){
+    $http({method: 'POST', url: '/api/authenticate', data:{username:user.username, password:user.password}}).
+      success(function(data, status, headers, config) {
+        $cookies.access_token = data.access_token;
+        //$state.go('app.transactions');
+      }).
+      error(function(data, status, headers, config) {
+        alert(data.message);
+      });
+  };
+})
+
+/**
  * Transaction
  */
-.controller('TransactionCtrl', function TransactionCtrl($scope, $state, $http){
+.controller('TransactionCtrl', function TransactionCtrl($scope, $state, $http, $cookies){
   $scope.title = moment().format('MMMM YYYY');
   $scope.edit = function(id){
     $state.go('app.transaction.edit', {id:id});
@@ -134,7 +174,7 @@ angular.module('myfedha', [
   $scope.total = 0;
   var start = moment().startOf('month').unix();
   var end = moment().endOf('month').unix();
-  $http({method: 'GET', url: '/api/transaction', params:{start:start,end:end}}).
+  $http({method: 'GET', url: '/api/transaction', params:{start:start,end:end}, headers:{Authorization:"OAuth "+$cookies.access_token}}).
     success(function(data, status, headers, config) {
       var total = 0;
       var value = 0;
@@ -156,7 +196,7 @@ angular.module('myfedha', [
 /**
  * Add Transaction
  */
-.controller('TransactionAddCtrl', function TransactionAddCtrl($scope, $state, $stateParams, Messages, $http) {
+.controller('TransactionAddCtrl', function TransactionAddCtrl($scope, $state, $stateParams, Messages, $http, $cookies) {
   $scope.transaction = {
     description: '',
     amount: '',
@@ -165,7 +205,7 @@ angular.module('myfedha', [
   $scope.save = function(valid, transaction) {
     $scope.addTransaction.submitted = true;
     if (valid) {
-      $http({method: 'POST', url: '/api/transaction', data:JSON.stringify(transaction)}).
+      $http({method: 'POST', url: '/api/transaction', data:JSON.stringify(transaction), headers:{Authorization:"OAuth "+$cookies.access_token}}).
         success(function(data, status, headers, config) {
           Messages.addMessage('Transaction added successfully!');
           $state.go('app.transaction');
@@ -180,14 +220,14 @@ angular.module('myfedha', [
 /**
  * Edit Transaction
  */
-.controller('TransactionEditCtrl', function TransactionAddCtrl($scope, $state, $stateParams, Messages, $http) {
+.controller('TransactionEditCtrl', function TransactionAddCtrl($scope, $state, $stateParams, Messages, $http, $cookies) {
   $scope.transaction = {
     description: '',
     amount: '',
     date: ''
   };
 
-  $http({method: 'GET', url: '/api/transaction/'+$stateParams.id}).
+  $http({method: 'GET', url: '/api/transaction/'+$stateParams.id, headers:{Authorization:"OAuth "+$cookies.access_token}}).
     success(function(data, status, headers, config) {
       $scope.transaction = data;
     }).
@@ -197,7 +237,7 @@ angular.module('myfedha', [
 
   $scope.save = function(valid, transaction) {
     if (valid) {
-      $http({method: 'PUT', url: '/api/transaction/'+$stateParams.id, data:JSON.stringify(transaction)}).
+      $http({method: 'PUT', url: '/api/transaction/'+$stateParams.id, data:JSON.stringify(transaction), headers:{Authorization:"OAuth "+$cookies.access_token}}).
         success(function(data, status, headers, config) {
           Messages.addMessage('Transaction updated successfully!');
           $state.go('app.transaction');
@@ -213,7 +253,7 @@ angular.module('myfedha', [
   };
 
   $scope.delete = function(transaction) {
-    $http({method: 'DELETE', url: '/api/transaction/'+$stateParams.id}).
+    $http({method: 'DELETE', url: '/api/transaction/'+$stateParams.id, headers:{Authorization:"OAuth "+$cookies.access_token}}).
       success(function(data, status, headers, config) {
         Messages.addMessage('Transaction deleted successfully!');
         $state.go('app.transaction');
