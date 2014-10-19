@@ -81,18 +81,42 @@ angular.module('myfedha', [
     },
     resolve: {
       keys: function(hotkeys, $state) {
+        // Budgeting shortcuts.
         hotkeys.add({
-          combo: 'a',
-          description: 'Add a transaction.',
+          combo: 'g b',
+          description: 'Go to budget.',
           callback: function() {
-            $state.go('app.transaction.add');
+            $state.go('app.budget');
           }
         });
         hotkeys.add({
-          combo: 'b',
+          combo: 'n b',
           description: 'Add a budget transaction.',
           callback: function() {
             $state.go('app.budget.add');
+          }
+        });
+        // Accounts shortcuts.
+        hotkeys.add({
+          combo: 'g a',
+          description: 'Go to accounts.',
+          callback: function() {
+            $state.go('app.account');
+          }
+        });
+        // Transaction shortcuts.
+        hotkeys.add({
+          combo: 'g t',
+          description: 'Go to list of transactions.',
+          callback: function() {
+            $state.go('app.transaction');
+          }
+        });
+        hotkeys.add({
+          combo: 'n t',
+          description: 'Add a transaction.',
+          callback: function() {
+            $state.go('app.transaction.add');
           }
         });
       },
@@ -233,6 +257,57 @@ angular.module('myfedha', [
       'app@': {
         templateUrl: '/js/budget_edit.tpl.html',
         controller: 'BudgetEditCtrl'
+      }
+    }
+  });
+
+  // Account landing page
+  $stateProvider.state( 'app.account', {
+    url: 'account',
+    views: {
+      'app@': {
+        templateUrl: '/js/account.tpl.html',
+        controller: 'AccountCtrl'
+      }
+    },
+    resolve: {
+      accountData: function($http, $q, User){
+        var deferred = $q.defer();
+        $http({method: 'GET', url: '/api/account', headers:{Authorization:"OAuth "+User.access_token}}).
+          success(function(data, status, headers, config) {
+            var accountData = {
+              title: 'Accounts',
+              accounts: data
+            };
+            deferred.resolve(accountData);
+          }).
+          error(function(data, status, headers, config) {
+            alert('Error');
+            deferred.resolve(false);
+          });
+        return deferred.promise;
+      }
+    }
+  });
+
+  // Add
+  $stateProvider.state( 'app.account.add', {
+    url: '/add',
+    views: {
+      'app@': {
+        templateUrl: '/js/account_add.tpl.html',
+        controller: 'AccountAddCtrl'
+      }
+    }
+  });
+
+  // Edit
+  $stateProvider.state( 'app.account.edit', {
+    url: '/:id/edit',
+    views: {
+      'app@': {
+        templateUrl: '/js/account_edit.tpl.html',
+        controller: 'AccountEditCtrl'
       }
     }
   });
@@ -583,6 +658,89 @@ angular.module('myfedha', [
   };
 })
 
+/**
+ * Account
+ */
+.controller('AccountCtrl', function AccountCtrl($scope, $state, $http, User, accountData){
+  $scope.edit = function(id){
+    $state.go('app.account.edit', {id:id});
+  };
+  $scope.title = accountData.title;
+  $scope.accounts = accountData.accounts;
+})
+
+/**
+ * Add Account
+ */
+.controller('AccountAddCtrl', function AccountAddCtrl($scope, $state, $stateParams, Messages, $http, User, accountData) {
+  $scope.transaction = {
+    description: '',
+    amount: ''
+  };
+  $scope.save = function(valid, account) {
+    $scope.addAccount.submitted = true;
+    if (valid) {
+      $http({method: 'POST', url: '/api/account', data:JSON.stringify(account), headers:{Authorization:"OAuth "+User.access_token}}).
+        success(function(data, status, headers, config) {
+          Messages.addMessage('Account added successfully!');
+          accountData.accounts.push(data);
+          $state.go('app.account');
+        }).
+        error(function(data, status, headers, config) {
+          alert('Error');
+        });
+    }
+  };
+})
+
+/**
+ * Edit Account
+ */
+.controller('AccountEditCtrl', function AccountAddCtrl($scope, $state, $stateParams, Messages, $http, User, accountData) {
+  $scope.account = {
+    description: '',
+    amount: ''
+  };
+
+  var index = 0;
+  for (var i in accountData.accounts) {
+    if (accountData.accounts[i].id == $stateParams.id) {
+      index = i;
+      angular.copy(accountData.accounts[i], $scope.account);
+      break;
+    }
+  }
+
+  $scope.save = function(valid, account) {
+    if (valid) {
+      $http({method: 'PUT', url: '/api/account/'+$stateParams.id, data:JSON.stringify(account), headers:{Authorization:"OAuth "+User.access_token}}).
+        success(function(data, status, headers, config) {
+          Messages.addMessage('Account updated successfully!');
+          accountData.accounts[index] = $scope.account;
+          $state.go('app.account');
+        }).
+        error(function(data, status, headers, config) {
+          console.log(data);
+          console.log(status);
+          console.log(headers);
+          console.log(config);
+          alert('Error');
+        });
+    }
+  };
+
+  $scope.delete = function(account) {
+    $http({method: 'DELETE', url: '/api/account/'+$stateParams.id, headers:{Authorization:"OAuth "+User.access_token}}).
+      success(function(data, status, headers, config) {
+        Messages.addMessage('Account deleted successfully!');
+        accountData.accounts.splice(index, 1);
+        $state.go('app.account');
+      }).
+      error(function(data, status, headers, config) {
+        alert('Error');
+      });
+  };
+})
 
 /**
  * Transaction

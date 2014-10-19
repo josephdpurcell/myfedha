@@ -42,6 +42,13 @@ class BudgetTransaction extends \Illuminate\Database\Eloquent\Model
 }
 
 /**
+ * Account Model
+ */
+class Account extends \Illuminate\Database\Eloquent\Model
+{
+}
+
+/**
  * User Model
  */
 class User extends \Illuminate\Database\Eloquent\Model
@@ -234,6 +241,7 @@ $app->post('/budget', function () use ($app) {
     $t = new BudgetTransaction;
     $t->estimate = $data->estimate;
     $t->amount = $data->amount;
+    $t->type = $data->type;
     $t->description = $data->description;
     $t->date = $data->date;
     $t->save();
@@ -248,6 +256,7 @@ $app->put('/budget/:id', function ($id) use ($app) {
 
     $t->estimate = $data->estimate;
     $t->amount = $data->amount;
+    $t->type = $data->type;
     $t->description = $data->description;
     $t->date = $data->date;
     $t->save();
@@ -256,6 +265,47 @@ $app->put('/budget/:id', function ($id) use ($app) {
 
 $app->delete('/budget/:id', function ($id) {
     $t = BudgetTransaction::find($id);
+    $t->delete();
+    echo $t->toJson();
+});
+
+$app->get('/account', function () use ($app) {
+    $req = $app->request();
+    $start = $req->get('start');
+    $end = $req->get('end');
+    $accounts = Account::orderBy('description', 'ASC')->get();
+    echo $accounts->toJson();
+});
+
+$app->get('/account/:id', function ($id) {
+    $t = Account::find($id);
+    echo $t->toJson();
+});
+
+$app->post('/account', function () use ($app) {
+    $body = $app->request->getBody();
+    $data = json_decode($body);
+    $t = new Account;
+    $t->amount = $data->amount;
+    $t->description = $data->description;
+    $t->save();
+    echo $t->toJson();
+});
+
+$app->put('/account/:id', function ($id) use ($app) {
+    $t = Account::find($id);
+
+    $body = $app->request->getBody();
+    $data = json_decode($body);
+
+    $t->amount = $data->amount;
+    $t->description = $data->description;
+    $t->save();
+    echo $t->toJson();
+});
+
+$app->delete('/account/:id', function ($id) {
+    $t = Account::find($id);
     $t->delete();
     echo $t->toJson();
 });
