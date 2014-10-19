@@ -178,7 +178,7 @@ angular.module('myfedha', [
 
   // Budget landing page
   $stateProvider.state( 'app.budget', {
-    url: 'budget',
+    url: 'budget/:index',
     views: {
       'app@': {
         templateUrl: '/js/budget.tpl.html',
@@ -186,7 +186,7 @@ angular.module('myfedha', [
       }
     },
     resolve: {
-      budgetData: function($http, $q, User){
+      budgetData: function($http, $q, User, $stateParams){
         var deferred = $q.defer();
 
         // a "page" is 2 weeks
@@ -197,11 +197,21 @@ angular.module('myfedha', [
         // start of page is 10/17/14 (this is our reference point)
         var pageStart = moment('2014-10-17');
 
+        // set today
+        var today = moment();
+        var index = $stateParams.index ? $stateParams.index : 0;
+        if (index>0) {
+            // go into the fiture
+            today.add(pageDefinition.amount * index, pageDefinition.unit);
+        } else if (index<0) {
+            // go back in time
+            today.subtract(pageDefinition.amount * index * -1, pageDefinition.unit);
+        }
+
         // Start of current budget period
         var found = false;
         var iterator = moment(pageStart);
         var start = moment(iterator);
-        var today = moment();
         var check = 0;
         if (today.isAfter(pageStart)) {
             while (found == false) {
@@ -209,7 +219,7 @@ angular.module('myfedha', [
                 if (iterator.isAfter(today)) {
                     found = true;
                 } else {
-                    unset(start);
+                    delete start;
                     start = moment(iterator);
                     check++;
                     if (check>50) {
