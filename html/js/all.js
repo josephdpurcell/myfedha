@@ -1,3 +1,32 @@
+moment.fn.between = function(other) {
+    var display = '';
+    if (this.isAfter(other)) {
+        // this is after other
+    } else {
+        // this is before other
+        var day = this.date();
+        var month = this.month();
+        var year = this.year();
+        if (other.year() != year) {
+            console.log('Need to test year in "between" fn.');
+            // Print the range of days and months and years
+            display = this.format('MMM DD, YYYY') + ' to ' + other.format('MMM DD, YYYY');
+        } else if (other.month() != month) {
+            console.log('Need to test month in "between" fn.');
+            // Print the range of days and months
+            display = this.format('MMM DD') + ' to ' + other.format('MMM DD, YYYY');
+        } else if (other.date() != day) {
+            // Print the range of days
+            display = this.format('MMM DD') + ' to ' + other.format('DD, YYYY');
+        } else {
+            console.log('Need to test day in "between" fn.');
+            // Print the day
+            display = this.format('MMM DD, YYYY');
+        }
+    }
+    return display;
+};
+
 /**
  * @todo: Design a pager that is a daterange that can be +/-
  * @todo: Add goals that are tied to a daterange.
@@ -100,6 +129,106 @@ angular.module('myfedha', [
     }
   });
 
+  // Budget landing page
+  $stateProvider.state( 'app.budget', {
+    url: 'budget',
+    views: {
+      'app@': {
+        templateUrl: '/js/budget.tpl.html',
+        controller: 'BudgetCtrl'
+      }
+    },
+    resolve: {
+      budgetData: function($http, $q, User){
+        var deferred = $q.defer();
+
+        // a "page" is 2 weeks
+        var pageDefinition = {
+            amount: 2,
+            unit: 'weeks'
+        };
+        // start of page is 10/17/14 (this is our reference point)
+        var pageStart = moment('2014-10-17');
+
+        // Start of current budget period
+        var found = false;
+        var iterator = moment(pageStart);
+        var start = moment(iterator);
+        var today = moment();
+        var check = 0;
+        if (today.isAfter(pageStart)) {
+            while (found == false) {
+                iterator.add(pageDefinition.amount, pageDefinition.unit);
+                if (iterator.isAfter(today)) {
+                    found = true;
+                } else {
+                    unset(start);
+                    start = moment(iterator);
+                    check++;
+                    if (check>50) {
+                        alert('We iterated too many times to find current budget page.');
+                        break;
+                    }
+                }
+            };
+        } else {
+            while (found == false) {
+                iterator.subtract(pageDefinition.amount, pageDefinition.unit);
+                if (iterator.isBefore(today)) {
+                    found = true;
+                }
+                start = iterator;
+                check++;
+                if (check>50) {
+                    alert('We iterated too many times to find current budget page.');
+                    break;
+                }
+            };
+        }
+
+        // End of current budget period
+        var end = moment(start);
+        end.add(pageDefinition.amount, pageDefinition.unit);
+
+        $http({method: 'GET', url: '/api/budget', params:{start:start.unix(),end:end.unix()}, headers:{Authorization:"OAuth "+User.access_token}}).
+          success(function(data, status, headers, config) {
+            var budgetData = {
+              title: start.between(end),
+              transactions: data
+            };
+            deferred.resolve(budgetData);
+          }).
+          error(function(data, status, headers, config) {
+            alert('Error');
+            deferred.resolve(false);
+          });
+        return deferred.promise;
+      }
+    }
+  });
+
+  // Add
+  $stateProvider.state( 'app.budget.add', {
+    url: '/add',
+    views: {
+      'app@': {
+        templateUrl: '/js/budget_add.tpl.html',
+        controller: 'BudgetAddCtrl'
+      }
+    }
+  });
+
+  // Edit
+  $stateProvider.state( 'app.budget.edit', {
+    url: '/:id/edit',
+    views: {
+      'app@': {
+        templateUrl: '/js/budget_edit.tpl.html',
+        controller: 'BudgetEditCtrl'
+      }
+    }
+  });
+
   // Transaction landing page
   $stateProvider.state( 'app.transaction', {
     url: 'transaction',
@@ -123,7 +252,9 @@ angular.module('myfedha', [
               goal: 400,
               goalPerDay: 0,
               goalToday: 0,
-              trending: 0
+              trending: 0,
+              daysInMonth: moment().endOf('month').format('D'),
+              dayOfMonth: moment().format('D')
             };
             // Get total.
             var value = 0;
@@ -134,8 +265,7 @@ angular.module('myfedha', [
               }
             }
             // Calculate goal.
-            var daysInMonth = moment().endOf('month').format('D');
-            transactionData.goalPerDay = Math.round(transactionData.goal / daysInMonth * 100) / 100;
+            transactionData.goalPerDay = Math.round(transactionData.goal / transactionData.daysInMonth * 100) / 100;
             transactionData.goalToday = transactionData.goalPerDay * moment().format('D');
             transactionData.trending = transactionData.total / transactionData.goalToday * 100;
             deferred.resolve(transactionData);
@@ -212,6 +342,16 @@ angular.module('myfedha', [
     var total = 0;
     for (var i in transactions) {
       total += parseFloat(transactions[i].amount);
+    };
+    return total;
+  }
+})
+
+.filter('sumFilterEstimate', function() {
+  return function(transactions) {
+    var total = 0;
+    for (var i in transactions) {
+      total += parseFloat(transactions[i].estimate);
     };
     return total;
   }
@@ -316,6 +456,94 @@ angular.module('myfedha', [
 })
 
 /**
+ * Budget
+ */
+.controller('BudgetCtrl', function BudgetCtrl($scope, $state, $http, User, budgetData){
+  $scope.edit = function(id){
+    $state.go('app.budget.edit', {id:id});
+  };
+  $scope.title = budgetData.title;
+  $scope.transactions = budgetData.transactions;
+  console.log($scope.transactions);
+})
+
+/**
+ * Add Budget
+ */
+.controller('BudgetAddCtrl', function BudgetAddCtrl($scope, $state, $stateParams, Messages, $http, User, budgetData) {
+  $scope.transaction = {
+    description: '',
+    amount: '',
+    date: moment().format('YYYY-MM-DD HH:mm:ss')
+  };
+  $scope.save = function(valid, transaction) {
+    $scope.addTransaction.submitted = true;
+    if (valid) {
+      $http({method: 'POST', url: '/api/budget', data:JSON.stringify(transaction), headers:{Authorization:"OAuth "+User.access_token}}).
+        success(function(data, status, headers, config) {
+          Messages.addMessage('Transaction added successfully!');
+          budgetData.transactions.push(data);
+          $state.go('app.budget');
+        }).
+        error(function(data, status, headers, config) {
+          alert('Error');
+        });
+    }
+  };
+})
+
+/**
+ * Edit Budget
+ */
+.controller('BudgetEditCtrl', function BudgetAddCtrl($scope, $state, $stateParams, Messages, $http, User, budgetData) {
+  $scope.transaction = {
+    description: '',
+    amount: '',
+    date: ''
+  };
+
+  var index = 0;
+  for (var i in budgetData.transactions) {
+    if (budgetData.transactions[i].id == $stateParams.id) {
+      index = i;
+      angular.copy(budgetData.transactions[i], $scope.transaction);
+      break;
+    }
+  }
+
+  $scope.save = function(valid, transaction) {
+    if (valid) {
+      $http({method: 'PUT', url: '/api/budget/'+$stateParams.id, data:JSON.stringify(transaction), headers:{Authorization:"OAuth "+User.access_token}}).
+        success(function(data, status, headers, config) {
+          Messages.addMessage('Transaction updated successfully!');
+          budgetData.transactions[index] = $scope.transaction;
+          $state.go('app.budget');
+        }).
+        error(function(data, status, headers, config) {
+          console.log(data);
+          console.log(status);
+          console.log(headers);
+          console.log(config);
+          alert('Error');
+        });
+    }
+  };
+
+  $scope.delete = function(transaction) {
+    $http({method: 'DELETE', url: '/api/budget/'+$stateParams.id, headers:{Authorization:"OAuth "+User.access_token}}).
+      success(function(data, status, headers, config) {
+        Messages.addMessage('Transaction deleted successfully!');
+        budgetData.transactions.splice(index, 1);
+        $state.go('app.budget');
+      }).
+      error(function(data, status, headers, config) {
+        alert('Error');
+      });
+  };
+})
+
+
+/**
  * Transaction
  */
 .controller('TransactionCtrl', function TransactionCtrl($scope, $state, $http, User, transactionData){
@@ -329,6 +557,8 @@ angular.module('myfedha', [
   $scope.transactions = transactionData.transactions;
   $scope.total = transactionData.total;
   $scope.trending = transactionData.trending;
+  $scope.dayOfMonth = transactionData.dayOfMonth;
+  $scope.daysInMonth = transactionData.daysInMonth;
 })
 
 /**
@@ -345,10 +575,8 @@ angular.module('myfedha', [
   var column1 = ['Actual'];
   var column2 = ['Average'];
   var column3 = ['Goal'];
-  var daysInMonth = moment().endOf('month').format('D');
-  var daysIntoMonth = moment().format('D');
-  var avg = $scope.total / daysIntoMonth;
-  for (var day=1; day<=daysInMonth; day++) {
+  var avg = $scope.total / $scope.dayOfMonth;
+  for (var day=1; day<=$scope.daysInMonth; day++) {
     var dayAmount = 0;
     for (var j in $scope.transactions) {
       if ($scope.transactions[j].dayOfMonth == day) {
@@ -476,17 +704,6 @@ angular.module('myfedha', [
         alert('Error');
       });
   };
-})
-
-
-/**
- * View a ContentGroup
- */
-.controller('ContentGroupViewCtrl', function contentGroupCtrl($scope, contentGroup, $state, $stateParams, Messages) {
-  $scope.contentGroupId = $stateParams.contentGroupId;
-  $scope.messages = Messages.popMessages();
-  $scope.formData = contentGroup;
-  $scope.master = {};
 })
 
 ;
