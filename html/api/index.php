@@ -59,10 +59,12 @@ class OAuth2Auth extends \Slim\Middleware
                 } else {
                     $authHeader = $this->headers['Authorization'];
                     $authHeader = strtolower($authHeader);
-                    list($realm, $access_token) = split(' ', $authHeader);
+                    $authHeaderParts = split(' ', $authHeader);
+                    $realm = $authHeaderParts[0];
                     if ($realm != 'oauth') {
                         throw new \Exception('Invalid Authentication Realm: '.$realm, 400);
                     }
+                    $access_token = isset($authHeaderParts[1]) ? $authHeaderParts[1] : null;
                     if (empty($access_token)) {
                         throw new \Exception('No Access Token Sent', 400);
                     }
