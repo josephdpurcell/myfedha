@@ -35,6 +35,13 @@ class Transaction extends \Illuminate\Database\Eloquent\Model
 }
 
 /**
+ * BudgetTransaction Model
+ */
+class BudgetTransaction extends \Illuminate\Database\Eloquent\Model
+{
+}
+
+/**
  * User Model
  */
 class User extends \Illuminate\Database\Eloquent\Model
@@ -192,6 +199,63 @@ $app->put('/transaction/:id', function ($id) use ($app) {
 
 $app->delete('/transaction/:id', function ($id) {
     $t = Transaction::find($id);
+    $t->delete();
+    echo $t->toJson();
+});
+
+$app->get('/budget', function () use ($app) {
+    $req = $app->request();
+    $start = $req->get('start');
+    $end = $req->get('end');
+    if ($start && $end) {
+        $from = date( 'Y-m-d G:i:s', $start);
+        $to = date( 'Y-m-d G:i:s', $end);
+        $budgets = BudgetTransaction::orderBy('date', 'ASC')->whereBetween('date', array($from, $to))->get();
+    } elseif ($start) {
+        $from = date( 'Y-m-d G:i:s', $start);
+        $budgets = BudgetTransaction::orderBy('date', 'ASC')->where('date', '>=', $from)->get();
+    } elseif ($end) {
+        $to = date( 'Y-m-d G:i:s', $end);
+        $budgets = BudgetTransaction::orderBy('date', 'ASC')->where('date', '<=', $to)->get();
+    } else {
+        $budgets = BudgetTransaction::orderBy('date', 'ASC')->get();
+    }
+    echo $budgets->toJson();
+});
+
+$app->get('/budget/:id', function ($id) {
+    $t = BudgetTransaction::find($id);
+    echo $t->toJson();
+});
+
+$app->post('/budget', function () use ($app) {
+    $body = $app->request->getBody();
+    $data = json_decode($body);
+    $t = new BudgetTransaction;
+    $t->estimate = $data->estimate;
+    $t->amount = $data->amount;
+    $t->description = $data->description;
+    $t->date = $data->date;
+    $t->save();
+    echo $t->toJson();
+});
+
+$app->put('/budget/:id', function ($id) use ($app) {
+    $t = BudgetTransaction::find($id);
+
+    $body = $app->request->getBody();
+    $data = json_decode($body);
+
+    $t->estimate = $data->estimate;
+    $t->amount = $data->amount;
+    $t->description = $data->description;
+    $t->date = $data->date;
+    $t->save();
+    echo $t->toJson();
+});
+
+$app->delete('/budget/:id', function ($id) {
+    $t = BudgetTransaction::find($id);
     $t->delete();
     echo $t->toJson();
 });

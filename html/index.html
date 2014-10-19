@@ -25,6 +25,27 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-md-12">
+
+          <nav class="navbar navbar-default" role="navigation">
+            <div class="container-fluid">
+              <div class="navbar-header">
+                <a class="navbar-brand" ui-sref="app">MyFedha</a>
+              </div>
+              <ul class="nav navbar-nav">
+                <li ui-sref-active="active"><a ui-sref="app.budget">Budget</a></li>
+                <li ui-sref-active="active"><a ui-sref="app.transaction">Transactions</a></li>
+                <li ui-sref-active="active"><a ui-sref="app.transaction.graph">Graph</a></li>
+              </ul>
+              <form class="navbar-form navbar-left">
+                <div class="form-group">
+                  <input type="text" class="form-control" placeholder="Search" ng-model="search">
+                </div>
+              </form>
+              <ul class="nav navbar-nav navbar-right">
+                <li><a ui-sref="app.logout"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+            </div><!-- /.container-fluid -->
+          </nav>
+
           <div ui-view="app"></div>
         </div>
       </div>
