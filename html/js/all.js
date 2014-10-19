@@ -81,6 +81,25 @@ angular.module('myfedha', [
     }
   });
 
+  // Logout
+  $stateProvider.state( 'app.logout', {
+    url: 'logout',
+    views: {
+      'app@': {
+        templateUrl: '/js/logout.tpl.html'
+      }
+    },
+    resolve: {
+      logoutAction: function(User, $q) {
+        var deferred = $q.defer();
+        User.logout(function(){
+          deferred.resolve(true);
+        });
+        return deferred.promise;
+      }
+    }
+  });
+
   // Transaction landing page
   $stateProvider.state( 'app.transaction', {
     url: 'transaction',
@@ -160,13 +179,21 @@ angular.module('myfedha', [
     init: function(callback){
         this.getAccessToken(callback);
     },
+    logout: function(callback){
+      this.name = '';
+      this.access_token = '';
+      $localForage.removeItem('access_token').then(function(){
+        if (typeof callback == 'function') {
+          callback(true);
+        }
+      });
+    },
     name: '',
     access_token: '',
     getAccessToken: function(callback){
       var that = this;
       if (!that.access_token) {
         $localForage.getItem('access_token').then(function(access_token){
-          access_token = '641414384cc4b2931d28d8b791ddb69f';
           that.access_token = access_token;
           if (typeof callback == 'function') {
             callback(access_token);
@@ -189,7 +216,7 @@ angular.module('myfedha', [
  *
  * Note: this sort of acts like a global scope
  */
-.controller('AppCtrl', function AppCtrl($scope, $state){
+.controller('AppCtrl', function AppCtrl(){
   // nothing here yet
 })
 
@@ -210,7 +237,7 @@ angular.module('myfedha', [
       $http({method: 'POST', url: '/api/authenticate', data:{username:user.username, password:user.password}}).
         success(function(data, status, headers, config) {
           User.setAccessToken(data.access_token, function(){
-            $state.go('app.transactions');
+            $state.go('app.transaction');
           });
         }).
         error(function(data, status, headers, config) {
