@@ -241,6 +241,7 @@ $app->post('/budget', function () use ($app) {
     $t = new BudgetTransaction;
     $t->estimate = $data->estimate;
     $t->amount = $data->amount;
+    $t->account_id = $data->account_id;
     $t->type = $data->type;
     $t->description = $data->description;
     $t->date = $data->date;
@@ -256,6 +257,7 @@ $app->put('/budget/:id', function ($id) use ($app) {
 
     $t->estimate = $data->estimate;
     $t->amount = $data->amount;
+    $t->account_id = $data->account_id;
     $t->type = $data->type;
     $t->description = $data->description;
     $t->date = $data->date;
