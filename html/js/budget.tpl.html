@@ -11,17 +11,20 @@
       </tr>
     </thead>
     <tbody>
-      <tr ng-repeat="t in transactions | filter:search" ng-click="edit(t.id)">
-        <td>{{t.estimate | currency:$}}</td>
-        <td>{{t.amount | currency:$}}</td>
-        <td>{{t.date}}</td>
-        <td>{{t.description}}</td>
+      <tr ng-repeat="t in transactions | filter:search">
+        <td ng-click="edit(t.id)">{{t.type=='expense' ? t.estimate * -1 : t.estimate | currency:$}}</td>
+        <td ng-click="edit(t.id)">{{t.type=='expense' ? t.amount * -1 : t.amount | currency:$}}</td>
+        <td ng-click="edit(t.id)">{{t.date}}</td>
+        <td>
+          <span ng-click="edit(t.id)">{{t.description}}</span>
+          <button ng-show="t.amount == 0" class="btn btn-xs btn-primary pull-right" ng-click="pay(t)">Pay</button>
+        </td>
       </tr>
     </tbody>
     <tfoot>
       <tr class="info">
         <td>{{transactions | filter:search | sumFilterEstimate | currency:$}}</td>
-        <td>{{transactions | filter:search | sumFilter | currency:$}}</td>
+        <td>{{transactions | filter:search | sumBudgetFilter | currency:$}}</td>
         <td>&nbsp;</td>
         <td>Total</td>
       </tr>

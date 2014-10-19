@@ -88,6 +88,13 @@ angular.module('myfedha', [
             $state.go('app.transaction.add');
           }
         });
+        hotkeys.add({
+          combo: 'b',
+          description: 'Add a budget transaction.',
+          callback: function() {
+            $state.go('app.budget.add');
+          }
+        });
       },
       User: function(UserProvider, $q) {
         var deferred = $q.defer();
@@ -189,6 +196,7 @@ angular.module('myfedha', [
         // End of current budget period
         var end = moment(start);
         end.add(pageDefinition.amount, pageDefinition.unit);
+        end.subtract(1, 'day');
 
         $http({method: 'GET', url: '/api/budget', params:{start:start.unix(),end:end.unix()}, headers:{Authorization:"OAuth "+User.access_token}}).
           success(function(data, status, headers, config) {
@@ -347,11 +355,29 @@ angular.module('myfedha', [
   }
 })
 
+.filter('sumBudgetFilter', function() {
+  return function(transactions) {
+    var total = 0;
+    for (var i in transactions) {
+      if (transactions[i].type=='expense') {
+        total -= parseFloat(transactions[i].amount);
+      } else {
+        total += parseFloat(transactions[i].amount);
+      }
+    };
+    return total;
+  }
+})
+
 .filter('sumFilterEstimate', function() {
   return function(transactions) {
     var total = 0;
     for (var i in transactions) {
-      total += parseFloat(transactions[i].estimate);
+      if (transactions[i].type=='expense') {
+        total -= parseFloat(transactions[i].estimate);
+      } else {
+        total += parseFloat(transactions[i].estimate);
+      }
     };
     return total;
   }
@@ -461,6 +487,21 @@ angular.module('myfedha', [
 .controller('BudgetCtrl', function BudgetCtrl($scope, $state, $http, User, budgetData){
   $scope.edit = function(id){
     $state.go('app.budget.edit', {id:id});
+  };
+  $scope.pay = function(t) {
+    var transaction = angular.copy(t);
+    transaction.amount = transaction.estimate;
+    $http({method: 'PUT', url: '/api/budget/'+t.id, data:JSON.stringify(transaction), headers:{Authorization:"OAuth "+User.access_token}}).
+      success(function(data, status, headers, config) {
+        t.amount = t.estimate;
+      }).
+      error(function(data, status, headers, config) {
+        console.log(data);
+        console.log(status);
+        console.log(headers);
+        console.log(config);
+        alert('Error');
+      });
   };
   $scope.title = budgetData.title;
   $scope.transactions = budgetData.transactions;
