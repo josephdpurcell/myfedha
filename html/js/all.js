@@ -155,6 +155,20 @@ angular.module('myfedha', [
 })
 
 /**
+ * Sum filter
+ * Source: http://stackoverflow.com/a/23843367
+ */
+.filter('sumFilter', function() {
+  return function(transactions) {
+    var total = 0;
+    for (var i in transactions) {
+      total += parseFloat(transactions[i].amount);
+    };
+    return total;
+  }
+})
+
+/**
  * A Messages Handler
  */
 .factory('Messages', function Messages(){

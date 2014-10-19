@@ -34,6 +34,13 @@
       <td>{{t.description}}</td>
     </tr>
   </tbody>
+  <tfoot>
+    <tr class="info">
+      <td>{{transactions | filter:search | sumFilter | currency:$}}</td>
+      <td>&nbsp;</td>
+      <td>Total</td>
+    </tr>
+  </tfoot>
 </table>
 
 <div ng-show="trending < 100">
