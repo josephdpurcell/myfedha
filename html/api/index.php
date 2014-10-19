@@ -102,8 +102,17 @@ $app->error(function($e) use ($app) {
 $headers = apache_request_headers();
 $app->add(new OAuth2Auth($headers));
 
-$app->post('/authenticate', function () {
-    global $app;
+$app->notFound(function () use ($app) {
+    $error = array(
+        'title' => 'Not Found',
+        'type' => 'http =>//httpstatus.es/404',
+        'status' => 404,
+        'detail' => 'No route found for "'.$app->request->getMethod().' '.$app->request->getResourceUri().'"'
+    );
+    echo json_encode($error);
+});
+
+$app->post('/authenticate', function () use ($app) {
     $body = $app->request->getBody();
     $data = json_decode($body);
     if (empty($data->username)) {
@@ -124,8 +133,7 @@ $app->post('/authenticate', function () {
     echo $user->toJson();
 });
 
-$app->get('/users/:id', function ($id) {
-    global $app;
+$app->get('/users/:id', function ($id) use ($app) {
     if ($id==$app->user->id) {
         echo $app->user->toJson();
     } else {
@@ -133,8 +141,7 @@ $app->get('/users/:id', function ($id) {
     }
 });
 
-$app->get('/transaction', function () {
-    global $app;
+$app->get('/transaction', function () use ($app) {
     $req = $app->request();
     $start = $req->get('start');
     $end = $req->get('end');
@@ -159,8 +166,7 @@ $app->get('/transaction/:id', function ($id) {
     echo $t->toJson();
 });
 
-$app->post('/transaction', function () {
-    global $app;
+$app->post('/transaction', function () use ($app) {
     $body = $app->request->getBody();
     $data = json_decode($body);
     $t = new Transaction;
@@ -171,8 +177,7 @@ $app->post('/transaction', function () {
     echo $t->toJson();
 });
 
-$app->put('/transaction/:id', function ($id) {
-    global $app;
+$app->put('/transaction/:id', function ($id) use ($app) {
     $t = Transaction::find($id);
 
     $body = $app->request->getBody();
