@@ -16,10 +16,16 @@
   </div>
   <div class="form-group">
     <select class="form-control" name="type" ng-model="transaction.type" required>
-      <option>expense</option>
-      <option>income</option>
+      <option value="expense">expense</option>
+      <option value="income">income</option>
     </select>
     <p ng-show="(addTransaction.$submitted || addTransaction.type.$dirty) && addTransaction.type.$invalid" class="help-block">The type is required.</p>
+  </div>
+  <div class="form-group">
+    <select class="form-control" name="account_id" ng-model="transaction.account_id" required>
+      <option ng-repeat="a in accounts" value="{{a.id}}" ng-selected="transaction.account_id==a.id">{{a.description}}</option>
+    </select>
+    <p ng-show="(addTransaction.$submitted || addTransaction.account_id.$dirty) && addTransaction.account_id.$invalid" class="help-block">The account is required.</p>
   </div>
   <div class="form-group">
     <input name="description" type="text" class="form-control" ng-model="transaction.description" placeholder="description" required>

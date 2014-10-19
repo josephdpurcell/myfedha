@@ -126,6 +126,22 @@ angular.module('myfedha', [
           deferred.resolve(User);
         });
         return deferred.promise;
+      },
+      accountData: function($http, $q, User){
+        var deferred = $q.defer();
+        $http({method: 'GET', url: '/api/account', headers:{Authorization:"OAuth "+User.access_token}}).
+          success(function(data, status, headers, config) {
+            var accountData = {
+              title: 'Accounts',
+              accounts: data
+            };
+            deferred.resolve(accountData);
+          }).
+          error(function(data, status, headers, config) {
+            alert('Error');
+            deferred.resolve(false);
+          });
+        return deferred.promise;
       }
     }
   });
@@ -268,24 +284,6 @@ angular.module('myfedha', [
       'app@': {
         templateUrl: '/js/account.tpl.html',
         controller: 'AccountCtrl'
-      }
-    },
-    resolve: {
-      accountData: function($http, $q, User){
-        var deferred = $q.defer();
-        $http({method: 'GET', url: '/api/account', headers:{Authorization:"OAuth "+User.access_token}}).
-          success(function(data, status, headers, config) {
-            var accountData = {
-              title: 'Accounts',
-              accounts: data
-            };
-            deferred.resolve(accountData);
-          }).
-          error(function(data, status, headers, config) {
-            alert('Error');
-            deferred.resolve(false);
-          });
-        return deferred.promise;
       }
     }
   });
@@ -559,9 +557,22 @@ angular.module('myfedha', [
 /**
  * Budget
  */
-.controller('BudgetCtrl', function BudgetCtrl($scope, $state, $http, User, budgetData){
+.controller('BudgetCtrl', function BudgetCtrl($scope, $state, $http, User, budgetData, accountData){
+  $scope.getAccountName = function(account_id) {
+    var name = '';
+    for (var i in $scope.accounts) {
+      if ($scope.accounts[i].id==account_id) {
+        name = $scope.accounts[i].description;
+      }
+    }
+    return name;
+  };
+
   $scope.edit = function(id){
     $state.go('app.budget.edit', {id:id});
+  };
+  $scope.editAccount = function(id){
+    $state.go('app.account.edit', {id:id});
   };
   $scope.pay = function(t) {
     var transaction = angular.copy(t);
@@ -580,18 +591,51 @@ angular.module('myfedha', [
   };
   $scope.title = budgetData.title;
   $scope.transactions = budgetData.transactions;
-  console.log($scope.transactions);
+  $scope.accounts = accountData.accounts;
+  for (var i in $scope.accounts) {
+    $scope.accounts[i].estimate = 0;
+  }
+  for (var i in $scope.transactions) {
+    for (var j in $scope.accounts) {
+      if ($scope.accounts[j].id==$scope.transactions[i].account_id) {
+        if ($scope.transactions[i].type=='income') {
+          $scope.accounts[j].estimate += $scope.transactions[i].amount;
+        } else {
+          $scope.accounts[j].estimate -= $scope.transactions[i].amount;
+        }
+      }
+    }
+  }
+
+  for (var i in $scope.accounts) {
+    var amount = parseFloat($scope.accounts[i].amount);
+    for (var j in $scope.transactions) {
+      if ($scope.transactions[j].account_id==$scope.accounts[i].id) {
+        // assume if amount is not falsy it has been paid
+        var amt = parseFloat($scope.transactions[j].amount);
+        if (!amt) {
+          if ($scope.transactions[j].type=='income') {
+            amount += parseFloat($scope.transactions[j].estimate);
+          } else {
+            amount -= parseFloat($scope.transactions[j].estimate);
+          }
+        }
+      }
+    }
+    $scope.accounts[i].estimate = amount;
+  };
 })
 
 /**
  * Add Budget
  */
-.controller('BudgetAddCtrl', function BudgetAddCtrl($scope, $state, $stateParams, Messages, $http, User, budgetData) {
+.controller('BudgetAddCtrl', function BudgetAddCtrl($scope, $state, $stateParams, Messages, $http, User, budgetData, accountData) {
   $scope.transaction = {
     description: '',
     amount: '',
     date: moment().format('YYYY-MM-DD HH:mm:ss')
   };
+  $scope.accounts = accountData.accounts;
   $scope.save = function(valid, transaction) {
     $scope.addTransaction.submitted = true;
     if (valid) {
@@ -611,12 +655,14 @@ angular.module('myfedha', [
 /**
  * Edit Budget
  */
-.controller('BudgetEditCtrl', function BudgetAddCtrl($scope, $state, $stateParams, Messages, $http, User, budgetData) {
+.controller('BudgetEditCtrl', function BudgetAddCtrl($scope, $state, $stateParams, Messages, $http, User, budgetData, accountData) {
   $scope.transaction = {
     description: '',
     amount: '',
     date: ''
   };
+
+  $scope.accounts = accountData.accounts;
 
   var index = 0;
   for (var i in budgetData.transactions) {
