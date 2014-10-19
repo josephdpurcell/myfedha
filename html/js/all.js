@@ -60,10 +60,10 @@ angular.module('myfedha', [
           }
         });
       },
-      user: function(User, $q) {
+      User: function(UserProvider, $q) {
         var deferred = $q.defer();
-        User.init(function(){
-          deferred.resolve(true);
+        UserProvider.provideUser(function(User){
+          deferred.resolve(User);
         });
         return deferred.promise;
       }
@@ -107,6 +107,55 @@ angular.module('myfedha', [
       'app@': {
         templateUrl: '/js/transaction.tpl.html',
         controller: 'TransactionCtrl'
+      }
+    },
+    resolve: {
+      transactionData: function($http, $q, User){
+        var deferred = $q.defer();
+        var start = moment().startOf('month').unix();
+        var end = moment().endOf('month').unix();
+        $http({method: 'GET', url: '/api/transaction', params:{start:start,end:end}, headers:{Authorization:"OAuth "+User.access_token}}).
+          success(function(data, status, headers, config) {
+            var transactionData = {
+              title: moment().format('MMMM YYYY'),
+              transactions: data,
+              total: 0,
+              goal: 400,
+              goalPerDay: 0,
+              goalToday: 0,
+              trending: 0
+            };
+            // Get total.
+            var value = 0;
+            for (var i in data) {
+              value = parseFloat(data[i].amount);
+              if (value) {
+                transactionData.total = transactionData.total + value;
+              }
+            }
+            // Calculate goal.
+            var daysInMonth = moment().endOf('month').format('D');
+            transactionData.goalPerDay = Math.round(transactionData.goal / daysInMonth * 100) / 100;
+            transactionData.goalToday = transactionData.goalPerDay * moment().format('D');
+            transactionData.trending = transactionData.total / transactionData.goalToday * 100;
+            deferred.resolve(transactionData);
+          }).
+          error(function(data, status, headers, config) {
+            alert('Error');
+            deferred.resolve(false);
+          });
+        return deferred.promise;
+      }
+    }
+  });
+
+  // Transactions as a graph
+  $stateProvider.state( 'app.transaction.graph', {
+    url: '/graph',
+    views: {
+      'transaction-body': {
+        templateUrl: '/js/transaction_graph.tpl.html',
+        controller: 'TransactionGraphCtrl'
       }
     }
   });
@@ -186,41 +235,48 @@ angular.module('myfedha', [
 })
 
 /**
- * A User
+ * A User provider
  */
-.factory('User', function User($localForage){
+.factory('UserProvider', function UserProvider($localForage){
   return {
-    init: function(callback){
-        this.getAccessToken(callback);
-    },
-    logout: function(callback){
-      this.name = '';
-      this.access_token = '';
-      $localForage.removeItem('access_token').then(function(){
-        if (typeof callback == 'function') {
-          callback(true);
-        }
-      });
-    },
-    name: '',
-    access_token: '',
-    getAccessToken: function(callback){
-      var that = this;
-      if (!that.access_token) {
-        $localForage.getItem('access_token').then(function(access_token){
-          that.access_token = access_token;
-          if (typeof callback == 'function') {
-            callback(access_token);
+    provideUser: function(callback){
+      var User = {
+        init: function(callback){
+            this.getAccessToken(callback);
+        },
+        logout: function(callback){
+          this.name = '';
+          this.access_token = '';
+          $localForage.removeItem('access_token').then(function(){
+            if (typeof callback == 'function') {
+              callback(true);
+            }
+          });
+        },
+        name: '',
+        access_token: '',
+        getAccessToken: function(callback){
+          var that = this;
+          if (!that.access_token) {
+            $localForage.getItem('access_token').then(function(access_token){
+              that.access_token = access_token;
+              if (typeof callback == 'function') {
+                callback(access_token);
+              }
+            });
+          } else {
+            callback(that.access_token);
           }
-        });
-      } else {
-        callback(that.access_token);
-      }
-    },
-    setAccessToken: function(access_token, callback){
-      this.access_token = access_token;
-      $localForage.setItem('access_token', access_token).then(callback);
-      return this;
+        },
+        setAccessToken: function(access_token, callback){
+          this.access_token = access_token;
+          $localForage.setItem('access_token', access_token).then(callback);
+          return this;
+        }
+      };
+      User.init(function(){
+        callback(User);
+      });
     }
   };
 })
@@ -242,59 +298,113 @@ angular.module('myfedha', [
     username: '',
     password: ''
   };
-  User.getAccessToken(function(access_token){
-    if (access_token) {
-      alert('We already have an access token');
-      $state.go('app.transaction');
-    }
-    $scope.login = function(valid, user){
-      $http({method: 'POST', url: '/api/authenticate', data:{username:user.username, password:user.password}}).
-        success(function(data, status, headers, config) {
-          User.setAccessToken(data.access_token, function(){
-            $state.go('app.transaction');
-          });
-        }).
-        error(function(data, status, headers, config) {
-          alert(data.message);
+  if (User.access_token) {
+    alert('We already have an access token');
+    $state.go('app.transaction');
+  }
+  $scope.login = function(valid, user){
+    $http({method: 'POST', url: '/api/authenticate', data:{username:user.username, password:user.password}}).
+      success(function(data, status, headers, config) {
+        User.setAccessToken(data.access_token, function(){
+          $state.go('app.transaction');
         });
-    };
-  });
+      }).
+      error(function(data, status, headers, config) {
+        alert(data.message);
+      });
+  };
 })
 
 /**
  * Transaction
  */
-.controller('TransactionCtrl', function TransactionCtrl($scope, $state, $http, User){
-  $scope.title = moment().format('MMMM YYYY');
+.controller('TransactionCtrl', function TransactionCtrl($scope, $state, $http, User, transactionData){
   $scope.edit = function(id){
     $state.go('app.transaction.edit', {id:id});
   };
-  var goal = 300;
+  $scope.title = transactionData.title;
+  $scope.goal = transactionData.goal;
+  $scope.goalPerDay = transactionData.goalPerDay;
+  $scope.goalToday = transactionData.goalToday;
+  $scope.transactions = transactionData.transactions;
+  $scope.total = transactionData.total;
+  $scope.trending = transactionData.trending;
+})
+
+/**
+ * Transaction Graph
+ */
+.controller('TransactionGraphCtrl', function TransactionGraphCtrl($scope, $state, $http, User){
+  // Set day on each transaction.
+  for (var i in $scope.transactions) {
+    $scope.transactions[i].dayOfMonth = moment($scope.transactions[i].date).date();
+    $scope.transactions[i].amount = parseFloat($scope.transactions[i].amount);
+  }
+  // Create each column
+  var columns = [];
+  var column1 = ['Actual'];
+  var column2 = ['Average'];
+  var column3 = ['Goal'];
   var daysInMonth = moment().endOf('month').format('D');
-  var goalPerDay = goal / daysInMonth;
-  var goalToday = goalPerDay * moment().format('D');
-  $scope.goalToday = goalToday;
-  $scope.trending = 0;
-  $scope.total = 0;
-  var start = moment().startOf('month').unix();
-  var end = moment().endOf('month').unix();
-  $http({method: 'GET', url: '/api/transaction', params:{start:start,end:end}, headers:{Authorization:"OAuth "+User.access_token}}).
-    success(function(data, status, headers, config) {
-      var total = 0;
-      var value = 0;
-      for (var i in data) {
-        value = parseFloat(data[i].amount);
-        if (value) {
-          total = total + value;
+  var daysIntoMonth = moment().format('D');
+  var avg = $scope.total / daysIntoMonth;
+  for (var day=1; day<=daysInMonth; day++) {
+    var dayAmount = 0;
+    for (var j in $scope.transactions) {
+      if ($scope.transactions[j].dayOfMonth == day) {
+        dayAmount += $scope.transactions[j].amount;
+      }
+    }
+    column1.push(dayAmount);
+    column2.push(avg);
+    column3.push($scope.goalPerDay);
+  }
+  columns.push(column1);
+  columns.push(column2);
+  columns.push(column3);
+  // Create chart
+  var chart = c3.generate({
+    bindto: '#chart',
+    tooltip: {
+      format: {
+        value: function(x) {
+          return '$' + x.toFixed(2);
         }
       }
-      $scope.total = total;
-      $scope.trending = total / goalToday * 100;
-      $scope.transactions = data;
-    }).
-    error(function(data, status, headers, config) {
-      alert('Error');
-    });
+    },
+    data: {
+      columns: columns,
+      /*
+      columns: [
+        ['data1', 30, 200, 100, 400, 150, 250],
+        ['data2', 130, 100, 140, 200, 150, 50]
+      ],
+      */
+      type: 'spline'
+    },
+    grid: {
+      y: {
+        show: true
+      }
+    },
+    zoom: {
+      enabled: false
+    },
+    axis: {
+      x: {
+        tick: {
+          format: function(x) {
+            return x + 1;
+          }
+        }
+      },
+      y: {
+        tick: {
+          format: d3.format('$,')
+        }
+      }
+    }
+  });
 })
 
 /**
