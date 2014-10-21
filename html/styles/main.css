@@ -5067,3 +5067,14 @@ body {
 .media-body {
   text-align: left;
 }
+.no-hover {
+  cursor: default;
+}
+.table > thead > tr.condensed-row > th,
+.table > thead > tr.condensed-row > td,
+.table > tbody > tr.condensed-row > th,
+.table > tbody > tr.condensed-row > td,
+.table > tfoot > tr.condensed-row > th,
+.table > tfoot > tr.condensed-row > td {
+  padding: 5px;
+}

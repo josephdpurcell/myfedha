@@ -20,33 +20,39 @@
 </div>
 
 <div ui-view="transaction-body">
-  <table class="table table-striped table-hover table-clickable">
+  <table class="table table-hover table-clickable">
     <thead>
       <tr>
         <th>Estimate</th>
         <th>Amount</th>
-        <th>Date</th>
         <th>Account</th>
         <th>Description</th>
       </tr>
     </thead>
     <tbody>
-      <tr ng-repeat="t in transactions | filter:search">
+      <tr ng-repeat-start="(date, ts) in transactions_by_date" class="info no-hover condensed-row">
+        <td colspan="4" class="text-info">
+          {{date | date:'mediumDate'}}
+        </td>
+      </tr>
+
+      <tr ng-repeat="t in ts">
         <td ng-click="edit(t.id)">{{t.type=='expense' ? t.estimate * -1 : t.estimate | currency:$}}</td>
         <td ng-click="edit(t.id)">{{t.type=='expense' ? t.amount * -1 : t.amount | currency:$}}</td>
-        <td ng-click="edit(t.id)">{{t.date}}</td>
         <td ng-click="edit(t.id)">{{getAccountName(t.account_id)}}</td>
         <td>
           <span ng-click="edit(t.id)">{{t.description}}</span>
           <button ng-show="t.amount == 0" class="btn btn-xs btn-primary pull-right" ng-click="pay(t)">Pay</button>
         </td>
       </tr>
+
+
+      <tr ng-repeat-end></tr>
     </tbody>
     <tfoot>
       <tr class="info">
         <td>{{transactions | filter:search | sumFilterEstimate | currency:$}}</td>
         <td>{{transactions | filter:search | sumBudgetFilter | currency:$}}</td>
-        <td>&nbsp;</td>
         <td>&nbsp;</td>
         <td>Total</td>
       </tr>
