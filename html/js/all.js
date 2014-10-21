@@ -604,40 +604,24 @@ angular.module('myfedha', [
   };
   $scope.title = budgetData.title;
   $scope.transactions = budgetData.transactions;
-  $scope.accounts = accountData.accounts;
-  for (var i in $scope.accounts) {
-    $scope.accounts[i].estimate = 0;
+  for (var i in accountData.accounts) {
+    accountData.accounts[i].estimate = accountData.accounts[i].amount;
   }
   for (var i in $scope.transactions) {
-    for (var j in $scope.accounts) {
-      if ($scope.accounts[j].id==$scope.transactions[i].account_id) {
-        if ($scope.transactions[i].type=='income') {
-          $scope.accounts[j].estimate += $scope.transactions[i].amount;
-        } else {
-          $scope.accounts[j].estimate -= $scope.transactions[i].amount;
-        }
-      }
-    }
-  }
-
-  for (var i in $scope.accounts) {
-    var amount = parseFloat($scope.accounts[i].amount);
-    for (var j in $scope.transactions) {
-      if ($scope.transactions[j].account_id==$scope.accounts[i].id) {
-        // assume if amount is not falsy it has been paid
-        var amt = parseFloat($scope.transactions[j].amount);
-        if (!amt) {
-          if ($scope.transactions[j].type=='income') {
-            amount += parseFloat($scope.transactions[j].estimate);
+    // if it's paid, skip it
+    if ($scope.transactions[i].amount==0) {
+      for (var j in accountData.accounts) {
+        if (accountData.accounts[j].id==$scope.transactions[i].account_id) {
+          if ($scope.transactions[i].type=='income') {
+            accountData.accounts[j].estimate += $scope.transactions[i].estimate;
           } else {
-            amount -= parseFloat($scope.transactions[j].estimate);
+            accountData.accounts[j].estimate -= $scope.transactions[i].estimate;
           }
         }
       }
     }
-    $scope.accounts[i].estimate = amount;
-  };
-
+  }
+  $scope.accounts = accountData.accounts;
 
   $scope.transactions_by_date = {};
   var date = '';
@@ -828,6 +812,16 @@ angular.module('myfedha', [
   $scope.trending = transactionData.trending;
   $scope.dayOfMonth = transactionData.dayOfMonth;
   $scope.daysInMonth = transactionData.daysInMonth;
+
+  $scope.transactions_by_date = {};
+  var date = '';
+  for (var i in $scope.transactions) {
+    date = $scope.transactions[i].date.substr(0, 10);
+    if (typeof($scope.transactions_by_date[date]) == 'undefined') {
+      $scope.transactions_by_date[date] = [];
+    }
+    $scope.transactions_by_date[date].push($scope.transactions[i]);
+  }
 })
 
 /**
