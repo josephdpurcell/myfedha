@@ -28,22 +28,11 @@
 
           <nav class="navbar navbar-default" role="navigation">
             <div class="container-fluid">
-              <div class="navbar-header">
-                <a class="navbar-brand" ui-sref="app">MyFedha</a>
-              </div>
               <ul class="nav navbar-nav">
                 <li ui-sref-active="active"><a ui-sref="app.budget">Budget</a></li>
-                <li ui-sref-active="active"><a ui-sref="app.account">Accounts</a></li>
                 <li ui-sref-active="active"><a ui-sref="app.transaction">Transactions</a></li>
-                <li ui-sref-active="active"><a ui-sref="app.transaction.graph">Graph</a></li>
+                <li ui-sref-active="active"><a ui-sref="app.transaction.add">Add Transaction</a></li>
               </ul>
-              <form class="navbar-form navbar-left">
-                <div class="form-group">
-                  <input type="text" class="form-control" placeholder="Search" ng-model="search">
-                </div>
-              </form>
-              <ul class="nav navbar-nav navbar-right">
-                <li><a ui-sref="app.logout"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
             </div><!-- /.container-fluid -->
           </nav>
 
@@ -56,9 +45,11 @@
     <script src="/js/vendor.js"></script>
     <script src="/js/vendor/localForage/dist/localforage.js"></script>
     <script src="/js/vendor/angular-localForage/dist/angular-localForage.js"></script>
+    <!--
     <script src="/js/vendor/angular-hotkeys/build/hotkeys.js"></script>
     <script src="/js/vendor/d3/d3.js"></script>
     <script src="/js/vendor/c3/c3.js"></script>
+    -->
     <script src="/js/all.js"></script>
 
   </body>

@@ -34,7 +34,7 @@ moment.fn.between = function(other) {
 angular.module('myfedha', [
   'ui.router',
   'LocalForageModule',
-  'cfp.hotkeys'
+  //'cfp.hotkeys'
 ])
 
 /**
@@ -80,6 +80,7 @@ angular.module('myfedha', [
       }
     },
     resolve: {
+    /*
       keys: function(hotkeys, $state) {
         // Budgeting shortcuts.
         hotkeys.add({
@@ -120,6 +121,7 @@ angular.module('myfedha', [
           }
         });
       },
+      */
       User: function(UserProvider, $q) {
         var deferred = $q.defer();
         UserProvider.provideUser(function(User){
