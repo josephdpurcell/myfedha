@@ -338,7 +338,7 @@ angular.module('myfedha', [
           success(function(data, status, headers, config) {
             var transactionData = {
               title: moment().format('MMMM YYYY'),
-              transactions: data,
+              transactions: [],
               total: 0,
               goal: 400,
               goalPerDay: 0,
@@ -350,15 +350,16 @@ angular.module('myfedha', [
             // Get total.
             var value = 0;
             for (var i in data) {
-              value = parseFloat(data[i].amount);
-              if (value) {
-                transactionData.total = transactionData.total + value;
+              data[i].amount = parseFloat(data[i].amount);
+              if (data[i].amount) {
+                transactionData.total = transactionData.total + data[i].amount;
               }
             }
             // Calculate goal.
             transactionData.goalPerDay = Math.round(transactionData.goal / transactionData.daysInMonth * 100) / 100;
             transactionData.goalToday = transactionData.goalPerDay * moment().format('D');
             transactionData.trending = transactionData.total / transactionData.goalToday * 100;
+            transactionData.transactions = data;
             deferred.resolve(transactionData);
           }).
           error(function(data, status, headers, config) {
@@ -634,6 +635,17 @@ angular.module('myfedha', [
     }
     $scope.accounts[i].estimate = amount;
   };
+
+
+  $scope.transactions_by_date = {};
+  var date = '';
+  for (var i in $scope.transactions) {
+    date = $scope.transactions[i].date.substr(0, 10);
+    if (typeof($scope.transactions_by_date[date]) == 'undefined') {
+      $scope.transactions_by_date[date] = [];
+    }
+    $scope.transactions_by_date[date].push($scope.transactions[i]);
+  }
 })
 
 /**
