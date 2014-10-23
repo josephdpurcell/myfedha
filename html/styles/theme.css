@@ -1,3 +1,6 @@
 .table-clickable {
     cursor: pointer;
 }
+.container {
+    max-width: 750px;
+}
