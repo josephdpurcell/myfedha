@@ -1,0 +1,24 @@
+CACHE MANIFEST
+
+CACHE:
+/index.html
+/js/account.tpl.html
+/js/account_add.tpl.html
+/js/account_edit.tpl.html
+/js/all.js
+/js/app.tpl.html
+/js/budget.tpl.html
+/js/budget_add.tpl.html
+/js/budget_edit.tpl.html
+/js/login.tpl.html
+/js/logout.tpl.html
+/js/transaction.tpl.html
+/js/transaction_add.tpl.html
+/js/transaction_edit.tpl.html
+/js/transaction_graph.tpl.html
+/js/vendor.js
+/styles/bootstrap.css
+/styles/theme.css
+
+NETWORK:
+*
