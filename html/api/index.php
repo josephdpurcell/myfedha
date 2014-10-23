@@ -64,26 +64,41 @@ class OAuth2Auth extends \Slim\Middleware
     }
 
     public function call() {
+        if ($this->app->request->isOptions()) {
+            header('Access-Control-Allow-Credentials: true');
+            header('Access-Control-Allow-Origin: *');
+            header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+            header('Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization');
+            header( 'HTTP/1.1 200 OK' );
+            exit();
+        }
         // allow request to /authenticate
         if (!$this->app->request->isPost() || $this->app->request->getResourceUri()!='/authenticate') {
             // no auth header
             try {
-                if (!isset($this->headers['Authorization'])) {
+                $authHeader = $this->app->request->headers->get('HTTP_AUTHORIZATION');
+                if (!$authHeader) {
+                    var_dump($authHeader);
+                    var_dump($this->app->request->headers->all());
+
                     throw new \Exception('No Authentication Header Set', 401);
                 } else {
-                    $authHeader = $this->headers['Authorization'];
-                    $authHeader = strtolower($authHeader);
-                    $authHeaderParts = split(' ', $authHeader);
-                    $realm = $authHeaderParts[0];
+                    // The 6th character should be a space.
+                    if (substr($authHeader, 5, 1)!==' ') {
+                        throw new \Exception('Invalid Authentication Realm', 400);
+                    }
+                    // The chars 0-5 should be OAuth.
+                    $realm = strtolower(substr($authHeader, 0, 5));
                     if ($realm != 'oauth') {
                         throw new \Exception('Invalid Authentication Realm: '.$realm, 400);
                     }
-                    $access_token = isset($authHeaderParts[1]) ? $authHeaderParts[1] : null;
-                    if (empty($access_token)) {
+                    // The chars 7+ should be the access_token.
+                    $access_token = substr($authHeader, 6);
+                    if (!$access_token) {
                         throw new \Exception('No Access Token Sent', 400);
                     }
                     $user = User::where('access_token', $access_token)->first();
-                    if (empty($user)) {
+                    if (!$user) {
                         throw new \Exception('Invalid Access Token', 403);
                     }
                     $this->app->user = $user;
