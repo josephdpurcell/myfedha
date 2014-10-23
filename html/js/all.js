@@ -910,7 +910,7 @@ angular.module('myfedha', [
   $scope.save = function(valid, transaction) {
     $scope.addTransaction.submitted = true;
     if (valid) {
-      $http({method: 'POST', url: '/api/transaction', data:JSON.stringify(transaction), headers:{Authorization:"OAuth "+User.access_token}}).
+      $http({method: 'POST', url: 'http://myfedha.com/api/transaction', data:JSON.stringify(transaction), headers:{Authorization:"OAuth "+User.access_token}}).
         success(function(data, status, headers, config) {
           Messages.addMessage('Transaction added successfully!');
           $state.go('app.transaction');
@@ -932,7 +932,7 @@ angular.module('myfedha', [
     date: ''
   };
 
-  $http({method: 'GET', url: '/api/transaction/'+$stateParams.id, headers:{Authorization:"OAuth "+User.access_token}}).
+  $http({method: 'GET', url: 'http://myfedha.com/api/transaction/'+$stateParams.id, headers:{Authorization:"OAuth "+User.access_token}}).
     success(function(data, status, headers, config) {
       $scope.transaction = data;
     }).
@@ -942,7 +942,7 @@ angular.module('myfedha', [
 
   $scope.save = function(valid, transaction) {
     if (valid) {
-      $http({method: 'PUT', url: '/api/transaction/'+$stateParams.id, data:JSON.stringify(transaction), headers:{Authorization:"OAuth "+User.access_token}}).
+      $http({method: 'PUT', url: 'http://myfedha.com/api/transaction/'+$stateParams.id, data:JSON.stringify(transaction), headers:{Authorization:"OAuth "+User.access_token}}).
         success(function(data, status, headers, config) {
           Messages.addMessage('Transaction updated successfully!');
           $state.go('app.transaction');
@@ -958,7 +958,7 @@ angular.module('myfedha', [
   };
 
   $scope.delete = function(transaction) {
-    $http({method: 'DELETE', url: '/api/transaction/'+$stateParams.id, headers:{Authorization:"OAuth "+User.access_token}}).
+    $http({method: 'DELETE', url: 'http://myfedha.com/api/transaction/'+$stateParams.id, headers:{Authorization:"OAuth "+User.access_token}}).
       success(function(data, status, headers, config) {
         Messages.addMessage('Transaction deleted successfully!');
         $state.go('app.transaction');
