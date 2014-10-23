@@ -12,5 +12,8 @@
     "moment": "~2.8.3",
     "URIjs": "~1.14.1",
     "q": "~2.0.2"
+  },
+  "resolutions": {
+    "localforage": "1.1.0"
   }
 }
