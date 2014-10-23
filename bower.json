@@ -1,0 +1,13 @@
+{
+  "name": "myfedha",
+  "version": "3.0.1",
+  "dependencies": {
+    "angularjs": "1.3.0",
+    "ui-router": "0.2.11",
+    "bootstrap": "3.2.0",
+    "angular-hotkeys": "chieffancypants/angular-hotkeys#~1.4.5",
+    "c3": "~0.3.0",
+    "localforage": "1.1.0",
+    "angular-localforage": "~1.0.0"
+  }
+}

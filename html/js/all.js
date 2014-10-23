@@ -131,7 +131,7 @@ angular.module('myfedha', [
       },
       accountData: function($http, $q, User){
         var deferred = $q.defer();
-        $http({method: 'GET', url: '/api/account', headers:{Authorization:"OAuth "+User.access_token}}).
+        $http({method: 'GET', url: 'http://myfedha.com/api/account', headers:{Authorization:"OAuth "+User.access_token}}).
           success(function(data, status, headers, config) {
             var accountData = {
               title: 'Accounts',
@@ -250,7 +250,7 @@ angular.module('myfedha', [
         end.add(pageDefinition.amount, pageDefinition.unit);
         end.subtract(1, 'day');
 
-        $http({method: 'GET', url: '/api/budget', params:{start:start.unix(),end:end.unix()}, headers:{Authorization:"OAuth "+User.access_token}}).
+        $http({method: 'GET', url: 'http://myfedha.com/api/budget', params:{start:start.unix(),end:end.unix()}, headers:{Authorization:"OAuth "+User.access_token}}).
           success(function(data, status, headers, config) {
             var budgetData = {
               title: start.between(end),
@@ -336,7 +336,7 @@ angular.module('myfedha', [
         var deferred = $q.defer();
         var start = moment().startOf('month').unix();
         var end = moment().endOf('month').unix();
-        $http({method: 'GET', url: '/api/transaction', params:{start:start,end:end}, headers:{Authorization:"OAuth "+User.access_token}}).
+        $http({method: 'GET', url: 'http://myfedha.com/api/transaction', params:{start:start,end:end}, headers:{Authorization:"OAuth "+User.access_token}}).
           success(function(data, status, headers, config) {
             var transactionData = {
               title: moment().format('MMMM YYYY'),
@@ -555,7 +555,7 @@ angular.module('myfedha', [
     $state.go('app.transaction');
   }
   $scope.login = function(valid, user){
-    $http({method: 'POST', url: '/api/authenticate', data:{username:user.username, password:user.password}}).
+    $http({method: 'POST', url: 'http://myfedha.com/api/authenticate', data:{username:user.username, password:user.password}}).
       success(function(data, status, headers, config) {
         User.setAccessToken(data.access_token, function(){
           $state.go('app.transaction');
@@ -590,7 +590,7 @@ angular.module('myfedha', [
   $scope.pay = function(t) {
     var transaction = angular.copy(t);
     transaction.amount = transaction.estimate;
-    $http({method: 'PUT', url: '/api/budget/'+t.id, data:JSON.stringify(transaction), headers:{Authorization:"OAuth "+User.access_token}}).
+    $http({method: 'PUT', url: 'http://myfedha.com/api/budget/'+t.id, data:JSON.stringify(transaction), headers:{Authorization:"OAuth "+User.access_token}}).
       success(function(data, status, headers, config) {
         t.amount = t.estimate;
       }).
@@ -647,7 +647,7 @@ angular.module('myfedha', [
   $scope.save = function(valid, transaction) {
     $scope.addTransaction.submitted = true;
     if (valid) {
-      $http({method: 'POST', url: '/api/budget', data:JSON.stringify(transaction), headers:{Authorization:"OAuth "+User.access_token}}).
+      $http({method: 'POST', url: 'http://myfedha.com/api/budget', data:JSON.stringify(transaction), headers:{Authorization:"OAuth "+User.access_token}}).
         success(function(data, status, headers, config) {
           Messages.addMessage('Transaction added successfully!');
           budgetData.transactions.push(data);
@@ -683,7 +683,7 @@ angular.module('myfedha', [
 
   $scope.save = function(valid, transaction) {
     if (valid) {
-      $http({method: 'PUT', url: '/api/budget/'+$stateParams.id, data:JSON.stringify(transaction), headers:{Authorization:"OAuth "+User.access_token}}).
+      $http({method: 'PUT', url: 'http://myfedha.com/api/budget/'+$stateParams.id, data:JSON.stringify(transaction), headers:{Authorization:"OAuth "+User.access_token}}).
         success(function(data, status, headers, config) {
           Messages.addMessage('Transaction updated successfully!');
           budgetData.transactions[index] = $scope.transaction;
@@ -700,7 +700,7 @@ angular.module('myfedha', [
   };
 
   $scope.delete = function(transaction) {
-    $http({method: 'DELETE', url: '/api/budget/'+$stateParams.id, headers:{Authorization:"OAuth "+User.access_token}}).
+    $http({method: 'DELETE', url: 'http://myfedha.com/api/budget/'+$stateParams.id, headers:{Authorization:"OAuth "+User.access_token}}).
       success(function(data, status, headers, config) {
         Messages.addMessage('Transaction deleted successfully!');
         budgetData.transactions.splice(index, 1);
@@ -734,7 +734,7 @@ angular.module('myfedha', [
   $scope.save = function(valid, account) {
     $scope.addAccount.submitted = true;
     if (valid) {
-      $http({method: 'POST', url: '/api/account', data:JSON.stringify(account), headers:{Authorization:"OAuth "+User.access_token}}).
+      $http({method: 'POST', url: 'http://myfedha.com/api/account', data:JSON.stringify(account), headers:{Authorization:"OAuth "+User.access_token}}).
         success(function(data, status, headers, config) {
           Messages.addMessage('Account added successfully!');
           accountData.accounts.push(data);
@@ -767,7 +767,7 @@ angular.module('myfedha', [
 
   $scope.save = function(valid, account) {
     if (valid) {
-      $http({method: 'PUT', url: '/api/account/'+$stateParams.id, data:JSON.stringify(account), headers:{Authorization:"OAuth "+User.access_token}}).
+      $http({method: 'PUT', url: 'http://myfedha.com/api/account/'+$stateParams.id, data:JSON.stringify(account), headers:{Authorization:"OAuth "+User.access_token}}).
         success(function(data, status, headers, config) {
           Messages.addMessage('Account updated successfully!');
           accountData.accounts[index] = $scope.account;
@@ -784,7 +784,7 @@ angular.module('myfedha', [
   };
 
   $scope.delete = function(account) {
-    $http({method: 'DELETE', url: '/api/account/'+$stateParams.id, headers:{Authorization:"OAuth "+User.access_token}}).
+    $http({method: 'DELETE', url: 'http://myfedha.com/api/account/'+$stateParams.id, headers:{Authorization:"OAuth "+User.access_token}}).
       success(function(data, status, headers, config) {
         Messages.addMessage('Account deleted successfully!');
         accountData.accounts.splice(index, 1);
