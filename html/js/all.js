@@ -12,14 +12,12 @@ moment.fn.between = function(other) {
             // Print the range of days and months and years
             display = this.format('MMM DD, YYYY') + ' to ' + other.format('MMM DD, YYYY');
         } else if (other.month() != month) {
-            console.log('Need to test month in "between" fn.');
             // Print the range of days and months
             display = this.format('MMM DD') + ' to ' + other.format('MMM DD, YYYY');
         } else if (other.date() != day) {
             // Print the range of days
             display = this.format('MMM DD') + ' to ' + other.format('DD, YYYY');
         } else {
-            console.log('Need to test day in "between" fn.');
             // Print the day
             display = this.format('MMM DD, YYYY');
         }
@@ -196,64 +194,63 @@ angular.module('myfedha', [
             amount: 2,
             unit: 'weeks'
         };
-        // start of page is 10/17/14 (this is our reference point)
-        var pageStart = moment('2014-10-17');
 
         // set today
         var today = moment();
+
+        // set today period (the page period for today)
+        // iterator will be the end of the current period and will start from
+        // the first known end of period
+        var iterator = moment('2014-10-03').recur().every(2).weeks();
+        var todayPeriodEnd = iterator.next(1, 'L')[0];
+        while (today.isAfter(todayPeriodEnd)) {
+            iterator = iterator.fromDate(todayPeriodEnd);
+            todayPeriodEnd = iterator.next(1, 'L')[0];
+        }
+        // convert today period end to moment js
+        todayPeriodEnd = moment(todayPeriodEnd);
+        todayPeriodStart = moment(todayPeriodEnd);
+        todayPeriodStart.subtract(pageDefinition.amount, pageDefinition.unit);
+        console.log('today period start', todayPeriodStart.format('L'));
+        console.log('today period end', todayPeriodEnd.format('L'));
+
+        // set pageday ("today" + however many days we page for)
+        var pageday = moment();
         var index = $stateParams.index ? $stateParams.index : 0;
         if (index>0) {
             // go into the fiture
-            today.add(pageDefinition.amount * index, pageDefinition.unit);
+            pageday.add(pageDefinition.amount * index, pageDefinition.unit);
         } else if (index<0) {
             // go back in time
-            today.subtract(pageDefinition.amount * index * -1, pageDefinition.unit);
+            pageday.subtract(pageDefinition.amount * index * -1, pageDefinition.unit);
         }
 
-        // Start of current budget period
-        var found = false;
-        var iterator = moment(pageStart);
-        var start = moment(iterator);
-        var check = 0;
-        if (today.isAfter(pageStart)) {
-            while (found == false) {
-                iterator.add(pageDefinition.amount, pageDefinition.unit);
-                if (iterator.isAfter(today)) {
-                    found = true;
-                } else {
-                    delete start;
-                    start = moment(iterator);
-                    check++;
-                    if (check>50) {
-                        alert('We iterated too many times to find current budget page.');
-                        break;
-                    }
-                }
-            };
-        } else {
-            while (found == false) {
-                iterator.subtract(pageDefinition.amount, pageDefinition.unit);
-                if (iterator.isBefore(today)) {
-                    found = true;
-                }
-                start = iterator;
-                check++;
-                if (check>50) {
-                    alert('We iterated too many times to find current budget page.');
-                    break;
-                }
-            };
+        // set pageday period (the page period for pageday)
+        var iterator = moment('2014-10-03').recur().every(2).weeks();
+        var pagedayPeriodEnd = iterator.next(1, 'L')[0];
+        while (pageday.isAfter(pagedayPeriodEnd)) {
+            iterator = iterator.fromDate(pagedayPeriodEnd);
+            pagedayPeriodEnd = iterator.next(1, 'L')[0];
         }
+        // convert pageday period end to moment js
+        pagedayPeriodEnd = moment(pagedayPeriodEnd);
+        pagedayPeriodStart = moment(pagedayPeriodEnd);
+        pagedayPeriodStart.subtract(pageDefinition.amount, pageDefinition.unit);
+        console.log('pageday period start', pagedayPeriodStart.format('L'));
+        console.log('pageday period end', pagedayPeriodEnd.format('L'));
 
-        // End of current budget period
-        var end = moment(start);
-        end.add(pageDefinition.amount, pageDefinition.unit);
-        end.subtract(1, 'day');
 
-        $http({method: 'GET', url: 'http://myfedha.com/api/budget', params:{start:start.unix(),end:end.unix()}, headers:{Authorization:"OAuth "+User.access_token}}).
+        // Make request
+        $http({method: 'GET', url: 'http://myfedha.com/api/budget', params:{start:todayPeriodStart.unix(),end:pagedayPeriodEnd.unix()}, headers:{Authorization:"OAuth "+User.access_token}}).
           success(function(data, status, headers, config) {
             var budgetData = {
-              title: start.between(end),
+              title: pagedayPeriodStart.between(pagedayPeriodEnd),
+              today: today,
+              pageday: pageday,
+              todayPeriodStart: todayPeriodStart,
+              todayPeriodEnd: todayPeriodEnd,
+              pagedayPeriodStart: pagedayPeriodStart,
+              pagedayPeriodEnd: pagedayPeriodEnd,
               transactions: data
             };
             deferred.resolve(budgetData);
@@ -604,18 +601,45 @@ angular.module('myfedha', [
   };
   $scope.title = budgetData.title;
   $scope.transactions = budgetData.transactions;
+
+  // Update the account amounts to tx before pagedayPeriodStart
+  for (var i in $scope.transactions) {
+    // if it's paid, skip it
+    if ($scope.transactions[i].amount==0) {
+      // Continue if transaction was before this pageday start.
+      var transaction_day = moment($scope.transactions[i].date);
+      if (transaction_day.isBefore(budgetData.pagedayPeriodStart)) {
+        for (var j in accountData.accounts) {
+          if (accountData.accounts[j].id==$scope.transactions[i].account_id) {
+            console.log('yes');
+            if ($scope.transactions[i].type=='income') {
+              accountData.accounts[j].amount += parseFloat($scope.transactions[i].estimate);
+            } else {
+              accountData.accounts[j].amount -= parseFloat($scope.transactions[i].estimate);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Set the estimate value on accounts.
   for (var i in accountData.accounts) {
     accountData.accounts[i].estimate = accountData.accounts[i].amount;
   }
   for (var i in $scope.transactions) {
     // if it's paid, skip it
     if ($scope.transactions[i].amount==0) {
-      for (var j in accountData.accounts) {
-        if (accountData.accounts[j].id==$scope.transactions[i].account_id) {
-          if ($scope.transactions[i].type=='income') {
-            accountData.accounts[j].estimate += $scope.transactions[i].estimate;
-          } else {
-            accountData.accounts[j].estimate -= $scope.transactions[i].estimate;
+      // Continue if transaction was after this pageday start.
+      var transaction_day = moment($scope.transactions[i].date);
+      if (transaction_day.isAfter(budgetData.pagedayPeriodStart)) {
+        for (var j in accountData.accounts) {
+          if (accountData.accounts[j].id==$scope.transactions[i].account_id) {
+            if ($scope.transactions[i].type=='income') {
+              accountData.accounts[j].estimate += parseFloat($scope.transactions[i].estimate);
+            } else {
+              accountData.accounts[j].estimate -= parseFloat($scope.transactions[i].estimate);
+            }
           }
         }
       }
