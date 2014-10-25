@@ -568,9 +568,9 @@ angular.module('myfedha', [
  * Budget
  */
 .controller('BudgetCtrl', function BudgetCtrl($scope, $state, $http, User, budgetData, accountData, $stateParams){
-  $scope.index = $stateParams.index;
-  $scope.nextIndex = parseInt($scope.index) + 1;
-  $scope.prevIndex = ($scope.index==0) ? false : parseInt($scope.index) - 1;
+  $scope.index = $stateParams.index ? parseInt($stateParams.index) : 0;
+  $scope.nextIndex = $scope.index + 1;
+  $scope.prevIndex = ($scope.index==0) ? false : $scope.index - 1;
   $scope.getAccountName = function(account_id) {
     var name = '';
     for (var i in $scope.accounts) {
