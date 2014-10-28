@@ -6,20 +6,20 @@ var gulp = require('gulp'),
   plumber = require('gulp-plumber');
 
 var vendorjs = [
-  'src/js/vendor/URIjs/src/URI.js',
-  'src/js/vendor/angular-hotkeys/build/hotkeys.js',
-  'src/js/vendor/angular-localforage/dist/angular-localForage.js',
-  'src/js/vendor/angular/angular.js',
-  'src/js/vendor/jquery/dist/jquery.js',
-  'src/js/vendor/localforage/dist/localforage.js',
-  'src/js/vendor/moment-recur/moment-recur.js',
-  'src/js/vendor/moment/moment.js',
-  //'src/js/vendor/q/q.js',
-  'src/js/vendor/ui-router/release/angular-ui-router.js'
+  'src/vendor/URIjs/src/URI.js',
+  'src/vendor/angular-hotkeys/build/hotkeys.js',
+  'src/vendor/angular-localforage/dist/angular-localForage.js',
+  'src/vendor/angular/angular.js',
+  'src/vendor/jquery/dist/jquery.js',
+  'src/vendor/localforage/dist/localforage.js',
+  'src/vendor/moment-recur/moment-recur.js',
+  'src/vendor/moment/moment.js',
+  //'src/vendor/q/q.js',
+  'src/vendor/ui-router/release/angular-ui-router.js'
 ];
 
 var vendorcss = [
-  'html/js/vendor/bootstrap/less/bootstrap.less'
+  'src/vendor/bootstrap/less/bootstrap.less'
 ];
 
 gulp.task('minifyjs', function () {
