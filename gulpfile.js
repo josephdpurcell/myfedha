@@ -52,4 +52,14 @@ gulp.task('minifycss', function () {
     .pipe(gulp.dest('html/styles'));
 });
 
+gulp.task('watch-js', function(){
+  gulp.watch('src/js/**/*.js', ['copyAppJs']);
+});
+
+gulp.task('watch-html', function(){
+  gulp.watch('src/js/**/*.tpl.html', ['copyAppHTML']);
+});
+
+gulp.task('watch', ['watch-js', 'watch-html']);
+
 gulp.task('build', ['minifyVendorJs', 'copyAppJs', 'copyAppHTML', 'minifycss']);
