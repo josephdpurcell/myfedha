@@ -7,14 +7,14 @@ var gulp = require('gulp'),
 
 var vendorjs = [
   'src/vendor/URIjs/src/URI.js',
-  'src/vendor/angular-hotkeys/build/hotkeys.js',
-  'src/vendor/angular-localforage/dist/angular-localForage.js',
-  'src/vendor/angular/angular.js',
   'src/vendor/jquery/dist/jquery.js',
   'src/vendor/localforage/dist/localforage.js',
-  'src/vendor/moment-recur/moment-recur.js',
   'src/vendor/moment/moment.js',
+  'src/vendor/moment-recur/moment-recur.js',
   //'src/vendor/q/q.js',
+  'src/vendor/angular/angular.js',
+  'src/vendor/angular-hotkeys/build/hotkeys.js',
+  'src/vendor/angular-localforage/dist/angular-localForage.js',
   'src/vendor/ui-router/release/angular-ui-router.js'
 ];
 
@@ -22,10 +22,20 @@ var vendorcss = [
   'src/vendor/bootstrap/less/bootstrap.less'
 ];
 
-gulp.task('minifyjs', function () {
+gulp.task('minifyVendorJs', function () {
   gulp.src(vendorjs)
     .pipe(concat('vendor.js'))
     .pipe(uglify())
+    .pipe(gulp.dest('html/js'));
+});
+
+gulp.task('copyAppJs', function () {
+  gulp.src('src/js/**/*.js')
+    .pipe(gulp.dest('html/js'));
+});
+
+gulp.task('copyAppHTML', function () {
+  gulp.src('src/js/**/*.tpl.html')
     .pipe(gulp.dest('html/js'));
 });
 
@@ -42,3 +52,4 @@ gulp.task('minifycss', function () {
     .pipe(gulp.dest('html/styles'));
 });
 
+gulp.task('build', ['minifyVendorJs', 'copyAppJs', 'copyAppHTML', 'minifycss']);

@@ -1,0 +1,50 @@
+<h1>{{title}}</h1>
+
+<div ui-view="transaction-body">
+  <div ng-show="trending < 100">
+    <p><strong class="text-success">{{total | currency:$}} Spent, Target for Today was: {{goalToday | currency:$}}</strong></p>
+    <p><strong class="text-success">{{goal - total | currency:$}} Balance</strong></p>
+    <p><strong class="text-success">{{total / goal * 100 | number:0}}% of Monthly Budget Spent</strong></p>
+    <p><strong class="text-success">{{total / goalToday * 100 | number:0}}% trending under budget</strong></p>
+  </div>
+  <div ng-show="trending > 100">
+    <p><strong class="text-danger">{{total | currency:$}} Spent, Target for Today was: {{goalToday | currency:$}}</strong></p>
+    <p><strong class="text-danger">{{goal - total | currency:$}} Balance</strong></p>
+    <p><strong class="text-danger">{{total / goal * 100 | number:0}}% of Monthly Budget Spent</strong></p>
+    <p><strong class="text-danger">{{total / goalToday * 100 | number:0}}% Trending Over Budget</strong></p>
+  </div>
+  <p><strong class="text-success">Goal to spend per day: {{goalPerDay | currency:$}}</strong></p>
+  <p><strong class="text-success">Goal to spend for this week: {{goalPerDay * 7 | currency:$}}</strong></p>
+  <p><strong class="text-success">Goal to spend for rest of the month: {{(daysInMonth - dayOfMonth) * goalPerDay | currency:$}}</strong></p>
+
+  <table class="table table-striped table-hover table-clickable">
+    <thead>
+      <tr>
+        <th>Amount</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat-start="(date, ts) in transactions_by_date" class="info no-hover condensed-row">
+        <td colspan="4" class="text-info">
+          {{date | date:'mediumDate'}}
+        </td>
+      </tr>
+      <tr ng-repeat="t in ts" ng-click="edit(t.id)">
+        <td>{{t.amount | currency:$}}</td>
+        <td>{{t.description}}</td>
+      </tr>
+      <tr ng-repeat-end></tr>
+    </tbody>
+    <tfoot>
+      <tr class="info">
+        <td>{{transactions | sumFilter | currency:$}}</td>
+        <td>Total</td>
+      </tr>
+    </tfoot>
+  </table>
+
+</div>
+
+<!-- spacing -->
+<p>&nbsp;</p>
