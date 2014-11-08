@@ -339,31 +339,94 @@ angular.module('myfedha', [
         var start = moment().startOf('month').unix();
         var end = moment().endOf('month').unix();
         $http({method: 'GET', url: 'http://myfedha.com/api/transaction', params:{start:start,end:end}, headers:{Authorization:"OAuth "+User.access_token}}).
-          success(function(data, status, headers, config) {
-            var transactionData = {
-              title: moment().format('MMMM YYYY'),
-              transactions: [],
-              total: 0,
-              goal: 400,
-              goalPerDay: 0,
-              goalToday: 0,
-              trending: 0,
-              daysInMonth: moment().endOf('month').format('D'),
-              dayOfMonth: moment().format('D')
-            };
-            // Get total.
-            var value = 0;
-            for (var i in data) {
-              data[i].amount = parseFloat(data[i].amount);
-              if (data[i].amount) {
-                transactionData.total = transactionData.total + data[i].amount;
+          success(function(transactions, status, headers, config) {
+            // Convert dates to moment() and parseFloat amounts.
+            for (var i in transactions) {
+              transactions[i].dateObj = moment(transactions[i].date);
+              transactions[i].amount = parseFloat(transactions[i].amount);
+            }
+
+            // Get today.
+            var today = moment();
+
+            // Compute the start of this week (but, not before beginning of month).
+            var startOfMonth = moment().startOf('month');
+            var startOfWeek = moment().startOf('week');
+            if (startOfWeek.isBefore(startOfMonth)) {
+                startOfWeek = moment(startOfMonth);
+            }
+
+            // Compute the end of this week (but, not after end of month).
+            var endOfMonth = moment().endOf('month');
+            var endOfWeek = moment().endOf('week');
+            if (endOfWeek.isAfter(endOfMonth)) {
+                endOfWeek = moment(endOfMonth);
+            }
+
+
+            // Goal per day
+            // Goal per week
+            // Goal per month
+            var goalPerMonth = 400;
+            var goalPerDay = goalPerMonth / endOfMonth.format('D');
+            var goalPerWeek = 7 * goalPerDay;
+
+            // how much I was supposed to spend today
+            // how much I was supposed to spend this week
+            // how much I was supposed to spend on this day of the month
+            // how much I was supposed to spend this month
+            var goalToday = goalPerDay;
+            var goalThisDayOfWeek = goalPerDay * (parseFloat(today.format('D')) - parseFloat(startOfWeek.format('D')) + 1.0);
+            var goalThisWeek = goalPerDay * (parseFloat(endOfWeek.format('D')) - parseFloat(startOfWeek.format('D')) + 1.0);
+            var goalThisDayOfMonth = goalPerDay * (parseFloat(today.format('D')) - parseFloat(startOfMonth.format('D')) + 1.0);
+            var goalThisMonth = goalPerMonth;
+
+            // how much I spent today
+            // how much I spent this week
+            // how much I spent this month
+            var spentToday = 0;
+            var spentThisWeek = 0;
+            var spentThisMonth = 0;
+            for (var i in transactions) {
+              if (transactions[i].amount) {
+                if (transactions[i].dateObj.isAfter(startOfWeek) && transactions[i].dateObj.isBefore(endOfWeek)) {
+                  spentThisWeek = spentThisWeek + transactions[i].amount;
+                }
+                if (transactions[i].dateObj.isSame(today, 'day')) {
+                  spentToday = spentToday + transactions[i].amount;
+                }
+                spentThisMonth = spentThisMonth + transactions[i].amount;
               }
             }
-            // Calculate goal.
-            transactionData.goalPerDay = Math.round(transactionData.goal / transactionData.daysInMonth * 100) / 100;
-            transactionData.goalToday = transactionData.goalPerDay * moment().format('D');
-            transactionData.trending = transactionData.total / transactionData.goalToday * 100;
-            transactionData.transactions = data;
+
+            // trending over budget
+            var trendingThisMonth = spentThisMonth / goalThisDayOfMonth * 100;
+
+            // Set data to return.
+            var transactionData = {
+              title: moment().format('MMMM YYYY'),
+              transactions: transactions,
+              total: spentThisMonth,
+              goal: goalThisMonth,
+              trending: trendingThisMonth,
+              daysInMonth: endOfMonth.format('D'),
+              dayOfMonth: today.format('D'),
+
+              goalPerMonth: goalPerMonth,
+              goalPerDay: goalPerDay,
+              goalPerWeek: goalPerWeek,
+              goalToday: goalToday,
+              goalThisDayOfWeek: goalThisDayOfWeek,
+              goalThisWeek: goalThisWeek,
+              goalThisDayOfMonth: goalThisDayOfMonth,
+              goalThisMonth: goalThisMonth,
+              spentToday: spentToday,
+              spentThisWeek: spentThisWeek,
+              spentThisMonth: spentThisMonth,
+              trendingThisMonth: trendingThisMonth,
+              trendingUnderBudget: trendingThisMonth <= 100
+            };
+
             deferred.resolve(transactionData);
           }).
           error(function(data, status, headers, config) {
@@ -843,13 +906,30 @@ angular.module('myfedha', [
   };
   $scope.title = transactionData.title;
   $scope.goal = transactionData.goal;
-  $scope.goalPerDay = transactionData.goalPerDay;
-  $scope.goalToday = transactionData.goalToday;
   $scope.transactions = transactionData.transactions;
   $scope.total = transactionData.total;
   $scope.trending = transactionData.trending;
   $scope.dayOfMonth = transactionData.dayOfMonth;
   $scope.daysInMonth = transactionData.daysInMonth;
+
+
+  $scope.goalPerMonth = transactionData.goalPerMonth;
+  $scope.goalPerDay = transactionData.goalPerDay;
+  $scope.goalPerWeek = transactionData.goalPerWeek;
+  $scope.goalToday = transactionData.goalToday;
+  $scope.goalThisDayOfWeek = transactionData.goalThisDayOfWeek;
+  $scope.goalThisWeek = transactionData.goalThisWeek;
+  $scope.goalThisDayOfMonth = transactionData.goalThisDayOfMonth;
+  $scope.goalThisMonth = transactionData.goalThisMonth;
+  $scope.spentToday = transactionData.spentToday;
+  $scope.spentThisWeek = transactionData.spentThisWeek;
+  $scope.spentThisMonth = transactionData.spentThisMonth;
+  $scope.trendingThisMonth = transactionData.trendingThisMonth;
+  $scope.trendingUnderBudget = transactionData.trendingUnderBudget;
+
+  $scope.spentOverBudget = transactionData.goalThisMonth - transactionData.spentThisMonth;
+  $scope.spentUnderBudget = $scope.spentOverBudget * -1;
+  $scope.waitDaysBeforeSpending = Math.round($scope.spentOverBudget / transactionData.goalPerDay);
 
   $scope.transactions_by_date = {};
   var date = '';
