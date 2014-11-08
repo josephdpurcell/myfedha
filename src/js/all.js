@@ -927,7 +927,7 @@ angular.module('myfedha', [
   $scope.trendingThisMonth = transactionData.trendingThisMonth;
   $scope.trendingUnderBudget = transactionData.trendingUnderBudget;
 
-  $scope.spentOverBudget = transactionData.goalThisMonth - transactionData.spentThisMonth;
+  $scope.spentOverBudget = transactionData.spentThisMonth - transactionData.goalThisDayOfMonth;
   $scope.spentUnderBudget = $scope.spentOverBudget * -1;
   $scope.waitDaysBeforeSpending = Math.round($scope.spentOverBudget / transactionData.goalPerDay);
 
