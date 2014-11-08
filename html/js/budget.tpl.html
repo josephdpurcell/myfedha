@@ -1,8 +1,12 @@
 <h1>{{title}}</h1>
 
 <ul class="pager">
-  <li class="previous" ng-class="{disabled:(prevIndex===false)}"><a ui-sref="app.budget({index:prevIndex})">&larr; Older</a></li>
-  <li class="next"><a ui-sref="app.budget({index:nextIndex})">Newer &rarr;</a></li>
+  <li class="previous" ng-class="{disabled:(!prevPage)}">
+    <a ui-sref="app.budget({page:prevPage})">&larr; Older</a>
+  </li>
+  <li class="next" ng-class="{disabled:(!nextPage)}">
+    <a ui-sref="app.budget({page:nextPage})">Newer &rarr;</a>
+  </li>
 </ul>
 
 <div ui-view="account-body">

@@ -178,7 +178,7 @@ angular.module('myfedha', [
 
   // Budget landing page
   $stateProvider.state( 'app.budget', {
-    url: 'budget/:index',
+    url: 'budget/:page',
     views: {
       'app@': {
         templateUrl: '/js/budget.tpl.html',
@@ -203,9 +203,11 @@ angular.module('myfedha', [
         // the first known end of period
         var iterator = moment('2014-10-03').recur().every(2).weeks();
         var todayPeriodEnd = iterator.next(1, 'L')[0];
+        var todayPage = 1;
         while (today.isAfter(todayPeriodEnd)) {
             iterator = iterator.fromDate(todayPeriodEnd);
             todayPeriodEnd = iterator.next(1, 'L')[0];
+            todayPage++;
         }
         // convert today period end to moment js
         todayPeriodEnd = moment(todayPeriodEnd);
@@ -215,14 +217,15 @@ angular.module('myfedha', [
         console.log('today period end', todayPeriodEnd.format('L'));
 
         // set pageday ("today" + however many days we page for)
-        var pageday = moment();
-        var index = $stateParams.index ? $stateParams.index : 0;
-        if (index>0) {
+        //var pageday = moment();
+        var pageday = moment('2014-10-03');
+        var page = $stateParams.page ? parseInt($stateParams.page) : todayPage;
+        if (page>0) {
             // go into the fiture
-            pageday.add(pageDefinition.amount * index, pageDefinition.unit);
-        } else if (index<0) {
+            pageday.add(pageDefinition.amount * page, pageDefinition.unit);
+        } else if (page<0) {
             // go back in time
-            pageday.subtract(pageDefinition.amount * index * -1, pageDefinition.unit);
+            pageday.subtract(pageDefinition.amount * page * -1, pageDefinition.unit);
         }
 
         // set pageday period (the page period for pageday)
@@ -239,13 +242,15 @@ angular.module('myfedha', [
         console.log('pageday period start', pagedayPeriodStart.format('L'));
         console.log('pageday period end', pagedayPeriodEnd.format('L'));
 
-
         // Make request
-        $http({method: 'GET', url: 'http://myfedha.com/api/budget', params:{start:todayPeriodStart.unix(),end:pagedayPeriodEnd.unix()}, headers:{Authorization:"OAuth "+User.access_token}}).
+        var start = moment('2014-10-03');
+        $http({method: 'GET', url: 'http://myfedha.com/api/budget', params:{start:start.unix(),end:todayPeriodEnd.unix()}, headers:{Authorization:"OAuth "+User.access_token}}).
           success(function(data, status, headers, config) {
             var budgetData = {
               title: pagedayPeriodStart.between(pagedayPeriodEnd),
               today: today,
+              page: page,
+              todayPage: todayPage,
               pageday: pageday,
               todayPeriodStart: todayPeriodStart,
               todayPeriodEnd: todayPeriodEnd,
@@ -568,9 +573,15 @@ angular.module('myfedha', [
  * Budget
  */
 .controller('BudgetCtrl', function BudgetCtrl($scope, $state, $http, User, budgetData, accountData, $stateParams){
-  $scope.index = $stateParams.index ? parseInt($stateParams.index) : 0;
-  $scope.nextIndex = $scope.index + 1;
-  $scope.prevIndex = ($scope.index==0) ? false : $scope.index - 1;
+  // Page information.
+  $scope.title = budgetData.title;
+
+  // Paging config.
+  $scope.page = budgetData.page;
+  $scope.nextPage = (budgetData.page==budgetData.todayPage) ? false : budgetData.page + 1;
+  $scope.prevPage = (budgetData.page==1) ? false : budgetData.page - 1;
+
+  // A helper method to get the account name for a budget transaction.
   $scope.getAccountName = function(account_id) {
     var name = '';
     for (var i in $scope.accounts) {
@@ -581,6 +592,7 @@ angular.module('myfedha', [
     return name;
   };
 
+  // Actions.
   $scope.edit = function(id){
     $state.go('app.budget.edit', {id:id});
   };
@@ -602,7 +614,7 @@ angular.module('myfedha', [
         alert('Error');
       });
   };
-  $scope.title = budgetData.title;
+
   $scope.transactions = budgetData.transactions;
 
   // Update the account amounts to tx before pagedayPeriodStart
@@ -614,7 +626,6 @@ angular.module('myfedha', [
       if (transaction_day.isBefore(budgetData.pagedayPeriodStart)) {
         for (var j in accountData.accounts) {
           if (accountData.accounts[j].id==$scope.transactions[i].account_id) {
-            console.log('yes');
             if ($scope.transactions[i].type=='income') {
               accountData.accounts[j].amount += parseFloat($scope.transactions[i].estimate);
             } else {
