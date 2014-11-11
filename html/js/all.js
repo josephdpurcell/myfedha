@@ -38,7 +38,9 @@ angular.module('myfedha', [
 /**
  * App Configuration
  */
-.config(function appConfig($stateProvider, $urlRouterProvider, $httpProvider, $localForageProvider) {
+.config(function appConfig($stateProvider, $urlRouterProvider, $httpProvider, $localForageProvider, $httpProvider) {
+
+  $httpProvider.interceptors.push('interceptor403');
 
   $localForageProvider.config({
     //driver      : 'localStorageWrapper', // if you want to force a driver
@@ -125,22 +127,6 @@ angular.module('myfedha', [
         UserProvider.provideUser(function(User){
           deferred.resolve(User);
         });
-        return deferred.promise;
-      },
-      accountData: function($http, $q, User){
-        var deferred = $q.defer();
-        $http({method: 'GET', url: 'http://myfedha.com/api/account', headers:{Authorization:"OAuth "+User.access_token}}).
-          success(function(data, status, headers, config) {
-            var accountData = {
-              title: 'Accounts',
-              accounts: data
-            };
-            deferred.resolve(accountData);
-          }).
-          error(function(data, status, headers, config) {
-            alert('Error');
-            deferred.resolve(false);
-          });
         return deferred.promise;
       }
     }
@@ -334,6 +320,22 @@ angular.module('myfedha', [
       }
     },
     resolve: {
+      accountData: function($http, $q, User){
+        var deferred = $q.defer();
+        $http({method: 'GET', url: 'http://myfedha.com/api/account', headers:{Authorization:"OAuth "+User.access_token}}).
+          success(function(data, status, headers, config) {
+            var accountData = {
+              title: 'Accounts',
+              accounts: data
+            };
+            deferred.resolve(accountData);
+          }).
+          error(function(data, status, headers, config) {
+            alert('Error');
+            deferred.resolve(false);
+          });
+        return deferred.promise;
+      },
       transactionData: function($http, $q, User){
         var deferred = $q.defer();
         var start = moment().startOf('month').unix();
@@ -470,6 +472,35 @@ angular.module('myfedha', [
       }
     }
   });
+})
+
+.factory('interceptor403', function($rootScope, $q){
+  return {
+    responseError: function(response) {
+      if (response.status == 403) {
+        window.location = "#/login";
+        return;
+      }
+      return $q.reject(response);
+    }
+  };
+/*
+    function error(response) {
+alert('err');
+      var status = response.status;
+      if (status == 403) {
+        window.location = "#/login";
+        return;
+      }
+      // otherwise
+      return $q.reject(response);
+    }
+    return function (promise) {
+      return promise.then(success, error);
+    }
+  };
+  return interceptor;
+*/
 })
 
 /**
