@@ -1,72 +1,17 @@
-moment.fn.between = function(other) {
-    var display = '';
-    if (this.isAfter(other)) {
-        // this is after other
-    } else {
-        // this is before other
-        var day = this.date();
-        var month = this.month();
-        var year = this.year();
-        if (other.year() != year) {
-            console.log('Need to test year in "between" fn.');
-            // Print the range of days and months and years
-            display = this.format('MMM DD, YYYY') + ' to ' + other.format('MMM DD, YYYY');
-        } else if (other.month() != month) {
-            // Print the range of days and months
-            display = this.format('MMM DD') + ' to ' + other.format('MMM DD, YYYY');
-        } else if (other.date() != day) {
-            // Print the range of days
-            display = this.format('MMM DD') + ' to ' + other.format('DD, YYYY');
-        } else {
-            // Print the day
-            display = this.format('MMM DD, YYYY');
-        }
-    }
-    return display;
-};
-
 /**
  * @todo: Design a pager that is a daterange that can be +/-
  * @todo: Add goals that are tied to a daterange.
  */
 angular.module('myfedha', [
   'ui.router',
-  'LocalForageModule',
+  'myfedha-api',
   //'cfp.hotkeys'
 ])
 
 /**
  * App Configuration
  */
-.config(function appConfig($stateProvider, $urlRouterProvider, $httpProvider, $localForageProvider, $httpProvider) {
-
-  $httpProvider.interceptors.push('interceptor403');
-
-  $localForageProvider.config({
-    //driver      : 'localStorageWrapper', // if you want to force a driver
-    name        : 'myfedha', // name of the database and prefix for your data
-    version     : 1.0, // version of the database, you shouldn't have to use this
-    storeName   : 'myfedha', // name of the table
-    description : 'MyFedha for budgeting!'
-  });
-
-  /*
-  $httpProvider.interceptors.push(function($q) {
-    return {
-      'request': function(config) {
-        // same as above
-        return config;
-      },
-      'response': function(response) {
-        if (response.status==401) {
-          window.location.href = 'http://myfedha.com/';
-        } else {
-          return response;
-        }
-      }
-    };
-  });
-  */
+.config(function appConfig($stateProvider, $urlRouterProvider, apiProvider) {
 
   $urlRouterProvider.otherwise('/');
 
@@ -122,9 +67,9 @@ angular.module('myfedha', [
         });
       },
       */
-      User: function(UserProvider, $q) {
+      User: function ($q, api) {
         var deferred = $q.defer();
-        UserProvider.provideUser(function(User){
+        api.getUser().then(function(User){
           deferred.resolve(User);
         });
         return deferred.promise;
@@ -140,6 +85,15 @@ angular.module('myfedha', [
         templateUrl: '/js/login.tpl.html',
         controller: 'LoginCtrl'
       }
+    },
+    resolve: {
+      User: function ($q, api) {
+        var deferred = $q.defer();
+        api.getUser().then(function(User){
+          deferred.resolve(User);
+        });
+        return deferred.promise;
+      }
     }
   });
 
@@ -152,12 +106,8 @@ angular.module('myfedha', [
       }
     },
     resolve: {
-      logoutAction: function(User, $q) {
-        var deferred = $q.defer();
-        User.logout(function(){
-          deferred.resolve(true);
-        });
-        return deferred.promise;
+      logoutAction: function (api) {
+        return api.logout;
       }
     }
   });
@@ -172,7 +122,7 @@ angular.module('myfedha', [
       }
     },
     resolve: {
-      budgetData: function($http, $q, User, $stateParams){
+      budgetData: function($http, $q, $stateParams){
         var deferred = $q.defer();
 
         // a "page" is 2 weeks
@@ -230,7 +180,7 @@ angular.module('myfedha', [
 
         // Make request
         var start = moment('2014-10-03');
-        $http({method: 'GET', url: 'http://myfedha.com/api/budget', params:{start:start.unix(),end:todayPeriodEnd.unix()}, headers:{Authorization:"OAuth "+User.access_token}}).
+        $http({method: 'GET', url: 'http://myfedha.com/api/budget', params:{start:start.unix(),end:todayPeriodEnd.unix()}}).
           success(function(data, status, headers, config) {
             var budgetData = {
               title: pagedayPeriodStart.between(pagedayPeriodEnd),
@@ -320,9 +270,9 @@ angular.module('myfedha', [
       }
     },
     resolve: {
-      accountData: function($http, $q, User){
+      accountData: function($http, $q){
         var deferred = $q.defer();
-        $http({method: 'GET', url: 'http://myfedha.com/api/account', headers:{Authorization:"OAuth "+User.access_token}}).
+        $http({method: 'GET', url: 'http://myfedha.com/api/account'}).
           success(function(data, status, headers, config) {
             var accountData = {
               title: 'Accounts',
@@ -336,11 +286,11 @@ angular.module('myfedha', [
           });
         return deferred.promise;
       },
-      transactionData: function($http, $q, User){
+      transactionData: function($http, $q){
         var deferred = $q.defer();
         var start = moment().startOf('month').unix();
         var end = moment().endOf('month').unix();
-        $http({method: 'GET', url: 'http://myfedha.com/api/transaction', params:{start:start,end:end}, headers:{Authorization:"OAuth "+User.access_token}}).
+        $http({method: 'GET', url: 'http://myfedha.com/api/transaction', params:{start:start,end:end}}).
           success(function(transactions, status, headers, config) {
             // Convert dates to moment() and parseFloat amounts.
             for (var i in transactions) {
@@ -474,35 +424,6 @@ angular.module('myfedha', [
   });
 })
 
-.factory('interceptor403', function($rootScope, $q){
-  return {
-    responseError: function(response) {
-      if (response.status == 403) {
-        window.location = "#/login";
-        return;
-      }
-      return $q.reject(response);
-    }
-  };
-/*
-    function error(response) {
-alert('err');
-      var status = response.status;
-      if (status == 403) {
-        window.location = "#/login";
-        return;
-      }
-      // otherwise
-      return $q.reject(response);
-    }
-    return function (promise) {
-      return promise.then(success, error);
-    }
-  };
-  return interceptor;
-*/
-})
-
 /**
  * AutoFocus Directive
  */
@@ -583,53 +504,6 @@ alert('err');
 })
 
 /**
- * A User provider
- */
-.factory('UserProvider', function UserProvider($localForage){
-  return {
-    provideUser: function(callback){
-      var User = {
-        init: function(callback){
-            this.getAccessToken(callback);
-        },
-        logout: function(callback){
-          this.name = '';
-          this.access_token = '';
-          $localForage.removeItem('access_token').then(function(){
-            if (typeof callback == 'function') {
-              callback(true);
-            }
-          });
-        },
-        name: '',
-        access_token: '',
-        getAccessToken: function(callback){
-          var that = this;
-          if (!that.access_token) {
-            $localForage.getItem('access_token').then(function(access_token){
-              that.access_token = access_token;
-              if (typeof callback == 'function') {
-                callback(access_token);
-              }
-            });
-          } else {
-            callback(that.access_token);
-          }
-        },
-        setAccessToken: function(access_token, callback){
-          this.access_token = access_token;
-          $localForage.setItem('access_token', access_token).then(callback);
-          return this;
-        }
-      };
-      User.init(function(){
-        callback(User);
-      });
-    }
-  };
-})
-
-/**
  * The Main App Controller
  *
  * Note: this sort of acts like a global scope
@@ -696,7 +570,7 @@ alert('err');
   $scope.pay = function(t) {
     var transaction = angular.copy(t);
     transaction.amount = transaction.estimate;
-    $http({method: 'PUT', url: 'http://myfedha.com/api/budget/'+t.id, data:JSON.stringify(transaction), headers:{Authorization:"OAuth "+User.access_token}}).
+    $http({method: 'PUT', url: 'http://myfedha.com/api/budget/'+t.id, data:JSON.stringify(transaction)}).
       success(function(data, status, headers, config) {
         t.amount = t.estimate;
       }).
@@ -779,7 +653,7 @@ alert('err');
   $scope.save = function(valid, transaction) {
     $scope.addTransaction.submitted = true;
     if (valid) {
-      $http({method: 'POST', url: 'http://myfedha.com/api/budget', data:JSON.stringify(transaction), headers:{Authorization:"OAuth "+User.access_token}}).
+      $http({method: 'POST', url: 'http://myfedha.com/api/budget', data:JSON.stringify(transaction)}).
         success(function(data, status, headers, config) {
           Messages.addMessage('Transaction added successfully!');
           budgetData.transactions.push(data);
@@ -815,7 +689,7 @@ alert('err');
 
   $scope.save = function(valid, transaction) {
     if (valid) {
-      $http({method: 'PUT', url: 'http://myfedha.com/api/budget/'+$stateParams.id, data:JSON.stringify(transaction), headers:{Authorization:"OAuth "+User.access_token}}).
+      $http({method: 'PUT', url: 'http://myfedha.com/api/budget/'+$stateParams.id, data:JSON.stringify(transaction)}).
         success(function(data, status, headers, config) {
           Messages.addMessage('Transaction updated successfully!');
           budgetData.transactions[index] = $scope.transaction;
@@ -832,7 +706,7 @@ alert('err');
   };
 
   $scope.delete = function(transaction) {
-    $http({method: 'DELETE', url: 'http://myfedha.com/api/budget/'+$stateParams.id, headers:{Authorization:"OAuth "+User.access_token}}).
+    $http({method: 'DELETE', url: 'http://myfedha.com/api/budget/'+$stateParams.id}).
       success(function(data, status, headers, config) {
         Messages.addMessage('Transaction deleted successfully!');
         budgetData.transactions.splice(index, 1);
@@ -866,7 +740,7 @@ alert('err');
   $scope.save = function(valid, account) {
     $scope.addAccount.submitted = true;
     if (valid) {
-      $http({method: 'POST', url: 'http://myfedha.com/api/account', data:JSON.stringify(account), headers:{Authorization:"OAuth "+User.access_token}}).
+      $http({method: 'POST', url: 'http://myfedha.com/api/account', data:JSON.stringify(account)}).
         success(function(data, status, headers, config) {
           Messages.addMessage('Account added successfully!');
           accountData.accounts.push(data);
@@ -899,7 +773,7 @@ alert('err');
 
   $scope.save = function(valid, account) {
     if (valid) {
-      $http({method: 'PUT', url: 'http://myfedha.com/api/account/'+$stateParams.id, data:JSON.stringify(account), headers:{Authorization:"OAuth "+User.access_token}}).
+      $http({method: 'PUT', url: 'http://myfedha.com/api/account/'+$stateParams.id, data:JSON.stringify(account)}).
         success(function(data, status, headers, config) {
           Messages.addMessage('Account updated successfully!');
           accountData.accounts[index] = $scope.account;
@@ -916,7 +790,7 @@ alert('err');
   };
 
   $scope.delete = function(account) {
-    $http({method: 'DELETE', url: 'http://myfedha.com/api/account/'+$stateParams.id, headers:{Authorization:"OAuth "+User.access_token}}).
+    $http({method: 'DELETE', url: 'http://myfedha.com/api/account/'+$stateParams.id}).
       success(function(data, status, headers, config) {
         Messages.addMessage('Account deleted successfully!');
         accountData.accounts.splice(index, 1);
@@ -1059,7 +933,7 @@ alert('err');
   $scope.save = function(valid, transaction) {
     $scope.addTransaction.submitted = true;
     if (valid) {
-      $http({method: 'POST', url: 'http://myfedha.com/api/transaction', data:JSON.stringify(transaction), headers:{Authorization:"OAuth "+User.access_token}}).
+      $http({method: 'POST', url: 'http://myfedha.com/api/transaction', data:JSON.stringify(transaction)}).
         success(function(data, status, headers, config) {
           Messages.addMessage('Transaction added successfully!');
           $state.go('app.transaction');
@@ -1081,7 +955,7 @@ alert('err');
     date: ''
   };
 
-  $http({method: 'GET', url: 'http://myfedha.com/api/transaction/'+$stateParams.id, headers:{Authorization:"OAuth "+User.access_token}}).
+  $http({method: 'GET', url: 'http://myfedha.com/api/transaction/'+$stateParams.id}).
     success(function(data, status, headers, config) {
       $scope.transaction = data;
     }).
@@ -1091,7 +965,7 @@ alert('err');
 
   $scope.save = function(valid, transaction) {
     if (valid) {
-      $http({method: 'PUT', url: 'http://myfedha.com/api/transaction/'+$stateParams.id, data:JSON.stringify(transaction), headers:{Authorization:"OAuth "+User.access_token}}).
+      $http({method: 'PUT', url: 'http://myfedha.com/api/transaction/'+$stateParams.id, data:JSON.stringify(transaction)}).
         success(function(data, status, headers, config) {
           Messages.addMessage('Transaction updated successfully!');
           $state.go('app.transaction');
@@ -1107,7 +981,7 @@ alert('err');
   };
 
   $scope.delete = function(transaction) {
-    $http({method: 'DELETE', url: 'http://myfedha.com/api/transaction/'+$stateParams.id, headers:{Authorization:"OAuth "+User.access_token}}).
+    $http({method: 'DELETE', url: 'http://myfedha.com/api/transaction/'+$stateParams.id}).
       success(function(data, status, headers, config) {
         Messages.addMessage('Transaction deleted successfully!');
         $state.go('app.transaction');
