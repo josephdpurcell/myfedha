@@ -3,7 +3,8 @@ var gulp = require('gulp'),
   concat = require('gulp-concat')
   less = require('gulp-less')
   cssmin = require('gulp-minify-css')
-  plumber = require('gulp-plumber');
+  plumber = require('gulp-plumber')
+  jasmine = require('gulp-jasmine');
 
 var vendorjs = [
   'src/vendor/URIjs/src/URI.js',
@@ -18,6 +19,15 @@ var vendorjs = [
   'src/vendor/ui-router/release/angular-ui-router.js'
 ];
 
+var appjs = [
+  'src/js/**/*.js',
+  '!src/js/**/*.spec.js'
+];
+
+var appspecjs = [
+  'src/js/**/*.spec.js'
+];
+
 var vendorcss = [
   'src/vendor/bootstrap/less/bootstrap.less'
 ];
@@ -30,7 +40,7 @@ gulp.task('minifyVendorJs', function () {
 });
 
 gulp.task('copyAppJs', function () {
-  gulp.src('src/js/**/*.js')
+  gulp.src(appjs)
     .pipe(gulp.dest('html/js'));
 });
 
@@ -52,12 +62,21 @@ gulp.task('minifycss', function () {
     .pipe(gulp.dest('html/styles'));
 });
 
+gulp.task('test', function () {
+  gulp.src(appspecjs)
+    .pipe(jasmine());
+});
+
 gulp.task('watch-js', function(){
-  gulp.watch('src/js/**/*.js', ['copyAppJs']);
+  gulp.watch(appjs, ['copyAppJs']);
 });
 
 gulp.task('watch-html', function(){
   gulp.watch('src/js/**/*.tpl.html', ['copyAppHTML']);
+});
+
+gulp.task('watch-test', function(){
+  gulp.watch(appspecjs, ['test']);
 });
 
 gulp.task('watch', ['watch-js', 'watch-html']);
