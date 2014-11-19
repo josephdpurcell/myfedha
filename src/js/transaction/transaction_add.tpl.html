@@ -1,0 +1,22 @@
+<h1>Add</h1>
+<form name="addTransaction" novalidate ng-submit="save(addTransaction.$valid, transaction)">
+  <div class="form-group">
+    <div class="input-group">
+      <div class="input-group-addon">$</div>
+      <input name="amount" type="text" class="form-control" ng-model="transaction.amount" placeholder="amount" ng-pattern="/^\d+\.?\d?\d?$/" required title="The dollar amount, e.g. $10.00." focus="true">
+    </div>
+    <p ng-show="(addTransaction.$submitted || addTransaction.amount.$dirty) && addTransaction.amount.$invalid" class="help-block">The amount is required and must be in the currency format, e.g. $10.00.</p>
+  </div>
+  <div class="form-group">
+    <input name="description" type="text" class="form-control" ng-model="transaction.description" placeholder="description" required>
+    <p ng-show="(addTransaction.$submitted || addTransaction.description.$dirty) && addTransaction.description.$invalid" class="help-block">The description is required.</p>
+  </div>
+  <div class="form-group">
+    <input name="date" type="datetime" class="form-control" ng-model="transaction.date" placeholder="date" required>
+    <p ng-show="(addTransaction.$submitted || addTransaction.date.$dirty) && addTransaction.date.$invalid" class="help-block">The date is required.</p>
+  </div>
+  <div class="form-group">
+    <input type="submit" class="btn btn-primary" value="Save">
+    <a class="btn" ui-sref="^">Cancel</a>
+  </div>
+</form>

@@ -1,0 +1,43 @@
+<h1>Edit</h1>
+<form name="editTransaction" novalidate ng-submit="save(editTransaction.$valid, transaction)" autocomplete="off">
+  <div class="form-group">
+    <div class="input-group">
+      <div class="input-group-addon">$</div>
+      <input name="estimate" type="text" class="form-control" ng-model="transaction.estimate" placeholder="estimate" ng-pattern="/^\d+\.?\d?\d?$/" required title="The dollar estimate, e.g. $10.00." focus="true">
+    </div>
+    <p ng-show="(editTransaction.$submitted || editTransaction.estimate.$dirty) && editTransaction.estimate.$invalid" class="help-block">The estimate is required and must be in the currency format, e.g. $10.00.</p>
+  </div>
+  <div class="form-group">
+    <div class="input-group">
+      <div class="input-group-addon">$</div>
+      <input name="amount" type="text" class="form-control" ng-model="transaction.amount" placeholder="amount" ng-pattern="/^\d+\.?\d?\d?$/" title="The dollar amount, e.g. $10.00.">
+    </div>
+    <p ng-show="(editTransaction.$submitted || editTransaction.amount.$dirty) && editTransaction.amount.$invalid" class="help-block">The amount must be in the currency format, e.g. $10.00.</p>
+  </div>
+  <div class="form-group">
+    <select class="form-control" name="type" ng-model="transaction.type" required>
+      <option value="expense">expense</option>
+      <option value="income">income</option>
+    </select>
+    <p ng-show="(editTransaction.$submitted || editTransaction.type.$dirty) && editTransaction.type.$invalid" class="help-block">The type is required.</p>
+  </div>
+  <div class="form-group">
+    <select class="form-control" name="account_id" ng-model="transaction.account_id" required>
+      <option ng-repeat="a in accounts" value="{{a.id}}" ng-selected="transaction.account_id==a.id">{{a.description}}</option>
+    </select>
+    <p ng-show="(editTransaction.$submitted || editTransaction.account_id.$dirty) && editTransaction.account_id.$invalid" class="help-block">The account is required.</p>
+  </div>
+  <div class="form-group">
+    <input name="description" type="text" class="form-control" ng-model="transaction.description" placeholder="description" required>
+    <p ng-show="(editTransaction.$submitted || editTransaction.description.$dirty) && editTransaction.description.$invalid" class="help-block">The description is required.</p>
+  </div>
+  <div class="form-group">
+    <input name="date" type="datetime" class="form-control" ng-model="transaction.date" placeholder="date" required>
+    <p ng-show="(editTransaction.$submitted || editTransaction.date.$dirty) && editTransaction.date.$invalid" class="help-block">The date is required.</p>
+  </div>
+  <div class="form-group">
+    <input type="submit" class="btn btn-primary" value="Save">
+    <a class="btn" ui-sref="^">Cancel</a>
+    <a class="btn btn-danger pull-right" ng-click="delete(transaction)">Delete</a>
+  </div>
+</form>

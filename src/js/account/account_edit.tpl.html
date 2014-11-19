@@ -1,0 +1,19 @@
+<h1>Edit</h1>
+<form name="editAccount" novalidate ng-submit="save(editAccount.$valid, account)">
+  <div class="form-group">
+    <div class="input-group">
+      <div class="input-group-addon">$</div>
+      <input name="amount" type="text" class="form-control" ng-model="account.amount" placeholder="amount" ng-pattern="/^\d+\.?\d?\d?$/" required title="The dollar amount, e.g. $10.00." focus="true">
+    </div>
+    <p ng-show="(editAccount.$submitted || editAccount.amount.$dirty) && editAccount.amount.$invalid" class="help-block">The amount is required and must be in the currency format, e.g. $10.00.</p>
+  </div>
+  <div class="form-group">
+    <input name="description" type="text" class="form-control" ng-model="account.description" placeholder="description" required>
+    <p ng-show="(editAccount.$submitted || editAccount.description.$dirty) && editAccount.description.$invalid" class="help-block">The description is required.</p>
+  </div>
+  <div class="form-group">
+    <input type="submit" class="btn btn-primary" value="Save">
+    <a class="btn" ui-sref="^">Cancel</a>
+    <a class="btn btn-danger pull-right" ng-click="delete(account)">Delete</a>
+  </div>
+</form>

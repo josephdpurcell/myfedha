@@ -119,7 +119,7 @@ angular.module('myfedha', [
     url: 'budget/:page',
     views: {
       'app@': {
-        templateUrl: '/js/budget.tpl.html',
+        templateUrl: '/js/budget/budget.tpl.html',
         controller: 'BudgetCtrl'
       }
     },
@@ -212,7 +212,7 @@ angular.module('myfedha', [
     url: '/add',
     views: {
       'app@': {
-        templateUrl: '/js/budget_add.tpl.html',
+        templateUrl: '/js/budget/budget_add.tpl.html',
         controller: 'BudgetAddCtrl'
       }
     }
@@ -223,7 +223,7 @@ angular.module('myfedha', [
     url: '/:id/edit',
     views: {
       'app@': {
-        templateUrl: '/js/budget_edit.tpl.html',
+        templateUrl: '/js/budget/budget_edit.tpl.html',
         controller: 'BudgetEditCtrl'
       }
     }
@@ -234,7 +234,7 @@ angular.module('myfedha', [
     url: 'account',
     views: {
       'app@': {
-        templateUrl: '/js/account.tpl.html',
+        templateUrl: '/js/account/account.tpl.html',
         controller: 'AccountCtrl'
       }
     }
@@ -245,7 +245,7 @@ angular.module('myfedha', [
     url: '/add',
     views: {
       'app@': {
-        templateUrl: '/js/account_add.tpl.html',
+        templateUrl: '/js/account/account_add.tpl.html',
         controller: 'AccountAddCtrl'
       }
     }
@@ -256,7 +256,7 @@ angular.module('myfedha', [
     url: '/:id/edit',
     views: {
       'app@': {
-        templateUrl: '/js/account_edit.tpl.html',
+        templateUrl: '/js/account/account_edit.tpl.html',
         controller: 'AccountEditCtrl'
       }
     }
@@ -267,7 +267,7 @@ angular.module('myfedha', [
     url: 'transaction',
     views: {
       'app@': {
-        templateUrl: '/js/transaction.tpl.html',
+        templateUrl: '/js/transaction/transaction.tpl.html',
         controller: 'TransactionCtrl'
       }
     },
@@ -397,7 +397,7 @@ angular.module('myfedha', [
     url: '/graph',
     views: {
       'transaction-body': {
-        templateUrl: '/js/transaction_graph.tpl.html',
+        templateUrl: '/js/transaction/transaction_graph.tpl.html',
         controller: 'TransactionGraphCtrl'
       }
     }
@@ -408,7 +408,7 @@ angular.module('myfedha', [
     url: '/add',
     views: {
       'app@': {
-        templateUrl: '/js/transaction_add.tpl.html',
+        templateUrl: '/js/transaction/transaction_add.tpl.html',
         controller: 'TransactionAddCtrl'
       }
     }
@@ -419,7 +419,7 @@ angular.module('myfedha', [
     url: '/:id/edit',
     views: {
       'app@': {
-        templateUrl: '/js/transaction_edit.tpl.html',
+        templateUrl: '/js/transaction/transaction_edit.tpl.html',
         controller: 'TransactionEditCtrl'
       }
     }
