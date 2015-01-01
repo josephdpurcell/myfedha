@@ -1,0 +1,11 @@
+.table-clickable {
+    cursor: pointer;
+}
+.container {
+    max-width: 750px;
+}
+.disabled a,
+a.disabled {
+   pointer-events: none;
+   cursor: default;
+}
