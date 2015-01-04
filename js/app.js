@@ -36,7 +36,7 @@ angular.module('myfedha', [
   });
 
   $stateProvider.state('app.transactions.edit', {
-    url: '/transactions/:id/edit',
+    url: '/:id/edit',
     views: {
       'app@': {
         templateUrl: '/js/transactions.edit.tpl.html',
@@ -65,6 +65,9 @@ angular.module('myfedha', [
       },
       save: function(data) {
         return DBAL.save('transactions', data)
+      },
+      delete: function(data) {
+        return DBAL.delete('transactions', data)
       }
     };
 })
@@ -116,6 +119,18 @@ angular.module('myfedha', [
       // Go back to the index.
       $state.go('^')
     }
+  };
+
+  $scope.delete = function(transaction) {
+    // Reset the form for when we use it again.
+    $scope.transaction = transaction;
+    $scope.editTransaction.$setPristine();
+
+    // Delete the transaction.
+    TransactionRepository.delete(transaction);
+
+    // Go back to the index.
+    $state.go('^')
   };
 })
 

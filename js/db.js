@@ -1,106 +1,131 @@
-angular.module('myfedha-db', [
-  'LocalForageModule'
-])
-
 /**
- * Configure each of our local forage tables here.
- *
- * @todo move this to a provider and require the dev to create the table
- * manually before calling LocalForageContainer.provide
+ * @todo figure out how to throw exceptions well
  */
-.run(function($localForage){
-  $localForage.createInstance({
-    //driver      : 'localStorageWrapper', // if you want to force a driver
-    name        : 'myfedha_transactions', // name of the database and prefix for your data
-    version     : 1.0, // version of the database, you shouldn't have to use this
-    storeName   : 'transactions', // name of the table
-    description : 'MyFedha for budgeting!'
-  });
-})
+angular.module('myfedha-db', [])
 
-/**
- * The provider of local forage tables.
- */
-.factory('LocalForageContainer', function ($localForage){
-  return {
-    provide: function provide(table) {
-      return $localForage.instance('myfedha_' + table);
-    }
-  };
+.factory('Marylin', function(){
+  return window.Marilyn;
 })
 
 /**
  * The database abstraction layer.
  */
-.factory('DBAL', function DBAL(LocalForageContainer, $q){
-    var collections = {}
-    return {
-      getNextId: function(table){
-        // @todo use an actual identifier somehow
-        for (var c = ''; c.length < 32;) {
-          c += Math.random().toString(36).substr(2, 1)
-        }
-        return c;
-      },
-      findAll: function(table) {
-        if (typeof(collections[table])!='undefined') {
-          return collections[table]
+.factory('DBAL', function DBAL($q, Marylin){
+  var models = {};
+
+  // Get a model.
+  var getModel = function getModel(modelName) {
+    // If it doesn't exist, create it.
+    if (typeof(models[modelName])=='undefined') {
+      var model = Marilyn.model(modelName);
+      setModel(modelName, model);
+    }
+    return models[modelName];
+  };
+
+  // Set a model.
+  var setModel = function setModel(modelName, model) {
+    models[modelName] = model;
+  };
+
+  // Internal method: getNextId.
+  var getNextId = function getNextId(collectionName) {
+    // @todo use an actual identifier somehow
+    for (var c = ''; c.length < 32;) {
+      c += Math.random().toString(36).substr(2, 1)
+    }
+    return c;
+  };
+
+  return {
+    findAll: function(modelName) {
+      var deferred = $q.defer();
+
+      // Get the model.
+      var model = getModel(modelName);
+
+      // Get the collection.
+      model.read(function(err, results){
+        if (!err) {
+          deferred.resolve(results);
         } else {
-          var deferred = $q.defer();
-          var db = LocalForageContainer.provide(table);
-          db.keys().then(function(keys){
-            var counter = 0;
-            var total = keys.length;
-            var data = [];
-            if (total > 0) {
-              for (var i in keys) {
-                db.getItem(keys[i]).then(function(obj){
-                  // @todo clean this up; async promise?
-                  counter++;
-                  data.push(obj)
-                  if (counter == total) {
-                    collections[table] = data
-                    deferred.resolve(data);
-                  }
-                });
-              }
-            } else {
-              deferred.resolve(data);
-            }
-          });
-          return deferred.promise;
+          console.log('Could not retrieve data for ' + modelName + '.');
+          throw 'Could not retrieve data for ' + modelName + '.';
+          deferred.resolve([]);
         }
-      },
-      find: function(table, key) {
-        var deferred = $q.defer();
-        var db = LocalForageContainer.provide(table);
-        return db.getItem(key);
-      },
-      save: function(table, data) {
-        var deferred = $q.defer();
-        var db = LocalForageContainer.provide(table);
-        var isNew = (typeof(data.id) == 'undefined');
-        if (isNew) {
-          data.id = this.getNextId(table);
+      });
+
+      return deferred.promise;
+    },
+    find: function(modelName, id) {
+      var deferred = $q.defer();
+
+      // Get the record.
+      var model = getModel(modelName);
+      model.readOne({id:id}, function(err, result){
+        if (!err && result) {
+          deferred.resolve(result);
+        } else {
+          console.log('Could not retrieve data for id ' + id + ' in ' + modelName + '.');
+          throw 'Could not retrieve data for id ' + id + ' in ' + modelName + '.';
+          deferred.resolve({});
         }
-        db.setItem(data.id, data).then(function(){
-          if (typeof(collections[table])!='undefined') {
-            if (isNew) {
-              collections[table].push(data)
-            } else {
-              for (var i in collections[table]) {
-                if (collections[table][i].id == data.id) {
-                  collections[table][i] = data
-                  break;
-                }
-              }
-            }
-          }
-          deferred.resolve();
-        });
-        return deferred.promise;
+      });
+
+      return deferred.promise;
+    },
+    save: function(modelName, data) {
+      var deferred = $q.defer();
+
+      // Set the id if it doesn't have one.
+      if (typeof(data.id) == 'undefined') {
+        data.id = getNextId(modelName);
       }
-    };
+
+      // Get a model version of the data.
+      var model = getModel(modelName);
+      data = new model(data);
+
+      // Persist the data.
+      data.save(function(err, result){
+        if (err) {
+          console.log('Could not create record in ' + modelName + '.');
+          throw 'Could not create record in ' + modelName + '.';
+          deferred.resolve({});
+        } else {
+          deferred.resolve(result);
+        }
+      });
+
+      return deferred.promise;
+    },
+    delete: function(modelName, data) {
+      var deferred = $q.defer();
+
+      // Set the id if it doesn't have one.
+      if (typeof(data.id) == 'undefined') {
+        console.log('There must be an id on something you want to delete in ' + modelName);
+        throw 'There must be an id on something you want to delete in ' + modelName;
+      }
+
+      // Get a model version of the data.
+      var model = getModel(modelName);
+      data = new model(data);
+
+      // Persist the data.
+      data.del({id:data.id}, function(err, result){
+        if (err) {
+          console.log('Could not delete record in ' + modelName + '.');
+          throw 'Could not delete record in ' + modelName + '.';
+          deferred.resolve({});
+        } else {
+          deferred.resolve(result);
+        }
+      });
+
+      return deferred.promise;
+    }
+  };
 })
 
 ;
