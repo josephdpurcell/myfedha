@@ -52,16 +52,20 @@ angular.module('myfedha-db', [
             var counter = 0;
             var total = keys.length;
             var data = [];
-            for (var i in keys) {
-              db.getItem(keys[i]).then(function(obj){
-                // @todo clean this up; async promise?
-                counter++;
-                data.push(obj)
-                if (counter == total) {
-                  collections[table] = data
-                  deferred.resolve(data);
-                }
-              });
+            if (total > 0) {
+              for (var i in keys) {
+                db.getItem(keys[i]).then(function(obj){
+                  // @todo clean this up; async promise?
+                  counter++;
+                  data.push(obj)
+                  if (counter == total) {
+                    collections[table] = data
+                    deferred.resolve(data);
+                  }
+                });
+              }
+            } else {
+              deferred.resolve(data);
             }
           });
           return deferred.promise;
