@@ -321,7 +321,7 @@ angular.module('myfedha', [
             // Goal per day
             // Goal per week
             // Goal per month
-            var goalPerMonth = 600;
+            var goalPerMonth = 452.60;
             var goalPerDay = goalPerMonth / endOfMonth.format('D');
             var goalPerWeek = 7 * goalPerDay;
 

@@ -12,7 +12,8 @@
     "moment": "~2.8.3",
     "moment-recur": "~1.0.0",
     "q": "~2.0.2",
-    "ui-router": "0.2.11"
+    "ui-router": "0.2.11",
+    "underscore": "~1.7.0"
   },
   "resolutions": {
     "localforage": "1.1.0",
